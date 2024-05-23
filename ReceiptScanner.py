@@ -7,6 +7,9 @@ import os
 import cv2
 import re
 
+# How to run the script with the image: "python ReceiptScanner.py -i Receipt10.jpg"
+# How to run the script with the image and debug: "python ReceiptScanner.py -i Receipt10.jpg -d 1"
+
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--image", required=True,
