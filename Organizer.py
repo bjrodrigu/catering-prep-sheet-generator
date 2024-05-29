@@ -3,7 +3,7 @@ import re
 def counting(receipt):
 #Create dictonaries(hashmaps) of the items that need to be counted 
     boxes = {
-        "30Pc Party Box":0,   "18Pc PartyBox":0,   "12 pack":0,    "Wrapbox":0
+        "30Pc Party Box":0,   "18Pc PartyBox":0,   "12 pack":0,    "Wrapbox":0, "(Box)":0
     }
 
     side_counts ={
