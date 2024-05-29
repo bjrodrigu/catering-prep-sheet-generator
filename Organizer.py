@@ -15,28 +15,27 @@ def counting(receipt):
     sandwiches={
         "#1 Pepe":0, "#2 Big John":0, "#3 Totally Tuna":0, "#4 Turkey Tom":0,"#5 Vito":0,"#6 The Veggie":0,"#7 Spicy Italian":0,"#8 Billy Club":0,"J.J. BLT":0,
         "#9 Italian Night Club":0,"#10 Hunters Club":0,"#11 Country Club":0,"#12 Beach Club":0,"#13 Jimmy Cubano":0,"#14 Bootleger":0,"#15 Club Tuna":0,
-        "#16 Club Lulu":0,"#17 Ultimate Porker":0,"J.J Garganutan":0    
+        "#16 Club Lulu":0,"#17 Ultimate Porker":0,"J.J. Garganutan":0    
     }
     wraps={
         "Chicken Ceaser":0,"Jalapeno Ranch":0,"Tuscan Italian":0   
     }
 
     #Look for key phrases in the receipt
-    for box in boxes:
-        occurances = re.findall(re.escape(box),receipt,re.IGNORECASE)
-        boxes[box] = len(occurances)
-        
-    for side in side_counts:
-        occurrences = re.findall(re.escape(side), receipt, re.IGNORECASE)
-        side_counts[side] = len(occurrences)
+    def count_items(item_dict, receipt):
+        for item in item_dict:
+            # Regex to find quantities preceding the item names (e.g., "8 30Pc Party Box")
+            pattern = re.compile(r'(\d+)\s*' + re.escape(item), re.IGNORECASE)
+            matches = pattern.findall(receipt)
+            for match in matches:
+                quantity = int(match)  # Convert captured quantity to integer
+                item_dict[item] += quantity
 
-    for sandwich in sandwiches:
-        occurrences = re.findall(re.escape(sandwich), receipt, re.IGNORECASE)
-        sandwiches[sandwich] = len(occurrences)
-
-    for wrap in wraps:
-        occurrences = re.findall(re.escape(wrap), receipt, re.IGNORECASE)
-        wraps[wrap] = len(occurrences)
+        # Look for key phrases in the receipt and count their quantities
+    count_items(boxes, receipt)
+    count_items(side_counts, receipt)
+    count_items(sandwiches, receipt)
+    count_items(wraps, receipt)
 
     return boxes, side_counts, sandwiches, wraps
 
@@ -48,7 +47,7 @@ def read_ocr_output(file_path):
 
 def main():
      # Assuming the input file was "Receipt2_processed.txt"
-    output_file = "Receipt2_processed.txt"
+    output_file = "Receipt8_processed.txt"
     ocr_text = read_ocr_output(output_file)
     
     boxes, side_counts, sandwiches, wraps = counting(ocr_text)
