@@ -78,6 +78,16 @@ def imageprocess(chosenImage):
     print("==================")
     print(text)
     print("\n")
+    
+      # Create output file name
+    base_name = os.path.splitext(chosenImage)[0]
+    outputFile = f"{base_name}_processed.txt"
+
+    # Save the OCR output to the file
+    with open(outputFile, "w") as file:
+        file.write(text)
+    print(f"OCR output saved to {outputFile}")
+
 
 def main():
     imageInput = input("Name of image file: ")
