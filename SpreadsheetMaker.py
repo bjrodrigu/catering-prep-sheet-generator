@@ -2,7 +2,8 @@ import pandas as pd
 import openpyxl
 from openpyxl.styles import Alignment, PatternFill, Border, Side
 from Organizer import process_receipt, read_ocr_output
-from ReceiptScanner import main as receipt_scanner
+from ReceiptScanner import ReceiptScanner
+
 
 boxes = {
     "30Pc Party Box": {"count": 0},
@@ -290,9 +291,10 @@ def create_spreadsheet():
     print("Excel file created successfully!")
 
 def main():
-    receipt_scanner()
-     # Assuming the input file was "Receipt2_processed.txt"
-    output_file = "Receipt2_processed.txt"
+    scanner = ReceiptScanner()
+    scanner.main()
+    print("FILENAME: ", scanner.file)
+    output_file = scanner.file
     ocr_text = read_ocr_output(output_file)
     # Call the function to process the receipt
     process_receipt(ocr_text, boxes)
