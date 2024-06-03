@@ -34,10 +34,10 @@ portions_per_pack={
 }
 items_per_box={
     "Regular":72,   "BBQ":72,    "Jalapeno":72,   "S&V":72, "Thinny":72,"Pickles":60
-    ,"Chocolate Chip":56,"Oatmeal Rasin":56,"Brownies":42,"pasta salad":2041.17,"potato salad":3628.74
+    ,"Chocolate Chip":56,"Oatmeal Rasin":56,"Brownies":42,"pasta salad":2041.17,"potato salad":2267.96
 }
 total_grams={
-    "PotSalad":142,   "PastaSalad":113,     "PotSalad(LG)":851,   "PastaSalad(LG)":680
+    "PotSalad":142.0,   "PastaSalad":113.0,     "PotSalad(LG)":851,   "PastaSalad(LG)":680
 }
 
 def process_receipt(receipt, dictionary):
@@ -68,11 +68,29 @@ def process_receipt(receipt, dictionary):
             items_per_box_item = items_per_box[item]
             containers_used = portions / items_per_box_item
             total_containers[item] = round(containers_used, 2)
+            # Calculate total grams of potato and pasta salad used
+    if dictionary is side_counts:
+        total_potato_salad_grams = (side_counts["PotSalad"]["count"] * total_grams["PotSalad"] +
+                                    side_counts["PotSalad(LG)"]["count"] * total_grams["PotSalad(LG)"])
+        total_pasta_salad_grams = (side_counts["PastaSalad"]["count"] * total_grams["PastaSalad"] +
+                                side_counts["PastaSalad(LG)"]["count"] * total_grams["PastaSalad(LG)"])
+        
+        # Calculate the number of full containers needed for potato and pasta salad
+        potato_salad_container_size = items_per_box["potato salad"]
+        pasta_salad_container_size = items_per_box["pasta salad"]
+        
+        potato_salad_containers_needed = total_potato_salad_grams / potato_salad_container_size
+        pasta_salad_containers_needed = total_pasta_salad_grams / pasta_salad_container_size
+        
+        total_containers["PotSalad"] = round(potato_salad_containers_needed, 2)
+        total_containers["PastaSalad"] = round(pasta_salad_containers_needed, 2)
+         
+        
     
     processed_data = {
         "counts": dictionary,
         "total_portions": total_portions,
-        "total_containers": total_containers
+        "total_containers": total_containers,
     }
     return processed_data
         
@@ -80,6 +98,7 @@ def print_processed_data(processed_data):
     counts = processed_data["counts"]
     total_portions = processed_data["total_portions"]
     total_containers = processed_data["total_containers"]
+
 
     for item, info in counts.items():
         if info["count"] > 0:
@@ -93,7 +112,9 @@ def print_processed_data(processed_data):
 
     total_containers_sum = sum(total_containers.values())
     if total_containers_sum > 0:
-        print(f"Total containers of sides used: {total_containers_sum:.2f}")
+        for item, amount in total_containers.items():
+            if amount > 0:
+                print(f"{item}: {amount:.2f} containers")
 
 
 def calculate_total_sandwiches_and_bread():
@@ -117,10 +138,10 @@ def calculate_total_sandwiches_and_bread():
 
 def find_ready_time(receipt):
     # Regular expression pattern to find "@ ready at" time in the receipt
-    ready_pattern = r'@ (\d{1,2}:\d{2} )'
+    ready_pattern = r'@ (\d{1,2}:\d{2})'
 
     # Search for the "@ ready at" time pattern in the receipt
-    match = re.match(ready_pattern, receipt, re.IGNORECASE)
+    match = re.search(ready_pattern, receipt, re.IGNORECASE)
 
     if match:
         return match.group(1)  # Return the matched time
@@ -144,14 +165,18 @@ def main():
     processed_receipts.append(process_receipt(ocr_text, sandwiches))
     processed_receipts.append(process_receipt(ocr_text, wraps))
     processed_receipts.append(process_receipt(ocr_text, side_counts))
-
+    ready_time = find_ready_time(ocr_text)
+    print("------------------------")
+    print(f"Ready at {ready_time}")
+    print("-------------------------")
     for receipt_data in processed_receipts:
         print_processed_data(receipt_data)
         print("-------------------------------------")
     calculate_total_sandwiches_and_bread()
     print("-------------------------------------")
-    ready_time=find_ready_time(ocr_text)
-    print(ready_time)
+
+    
+
 
     
     
