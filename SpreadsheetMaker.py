@@ -1,9 +1,8 @@
 import pandas as pd
 import openpyxl
 from openpyxl.styles import Alignment, PatternFill, Border, Side
-from Organizer import process_receipt, read_ocr_output
+from Organizer import process_receipt, read_ocr_output, calculate_total_sandwiches_and_bread, find_ready_time
 from ReceiptScanner import ReceiptScanner
-
 
 boxes = {
     "30Pc Party Box": {"count": 0},
@@ -51,10 +50,10 @@ sandwiches = {
     "J.J. Garganutan": {"count": 0, "cheese": 1, "ham": 1, "roast beef": 1, "turkey": 1, "vito": 1}
 }
 
-wraps = {
-    "Chicken Ceaser": {"count": 0, "chicken": 1},
-    "Jalapeno Ranch": {"count": 0, "cheese": 1, "chicken": 1},
-    "Tuscan Italian": {"count": 0, "vito": 1, "ham": 1}
+wraps={
+    "Chicken Ceaser":{"count":0,"chicken":1,"garlic herb wrap":1},
+    "Jalapeno Ranch":{"count":0,"cheese":1,"chicken":1,"flour wrap":1},
+    "Tuscan Italian":{"count":0,"vito":1,"ham":1,"garlic herb wrap":1}   
 }
 
 portions_per_pack = {
@@ -92,12 +91,12 @@ def create_spreadsheet():
     sheet = workbook.active
 
     # Define placeholder values
-    quantities = [""] + [0] * 14 # placeholder value
+    quantities = [""] + [0, 0, 0, 0, boxes["30Pc Party Box"]["count"], boxes["(Box)"]["count"], boxes["12 pack"]["count"], boxes["18Pc PartyBox"]["count"], boxes["Wrapbox"]["count"], 0, 0, 0, 0, 0]
     trays_of_15 = 0 # placeholder value
     total_extra_trays = 0 # placeholder value
-    total_pickles = 0 # placeholder value
-    num_of_gh_wraps = 0 # placeholder value
-    num_of_flour_wraps = 0 # placeholder value
+    total_pickles = boxes["(Box)"]["count"] # placeholder value
+    num_of_gh_wraps = sum(wraps[wrap].get("garlic herb", 0) * wraps[wrap]["count"] for wrap in wraps)
+    num_of_flour_wraps = sum(wraps[wrap].get("flour", 0) * wraps[wrap]["count"] for wrap in wraps)
     projection = 0 # placeholder value
     projection_with_catering = 0 # placeholder value
 
@@ -134,7 +133,7 @@ def create_spreadsheet():
         quantities,
         [],
         ["Trays of 15 for little johns", trays_of_15],
-        ["Lay out extra trays of bread", total_extra_trays, "", "Pickles to slice for Box Lunch", total_pickles],
+        ["Lay out extra trays of bread", total_extra_trays, "", "Pickles to slice for Box Lunch", total_pickles / 4],
         ["Number of G/H wraps needed", num_of_gh_wraps, "", "G/H Wrap packs needed for order", num_of_gh_wraps / portions_per_pack["garlic herb wrap"]],
         ["Number of Flour wraps needed", num_of_flour_wraps, "", "Flour Wrap packs needed for order", num_of_flour_wraps / portions_per_pack["flour wrap"]],
         ["Projection for shift w/out catering", projection],
@@ -150,6 +149,18 @@ def create_spreadsheet():
     for row in sandwich_totals:
         sheet.append(row)
 
+    add_slicing_prep_totals(sheet)
+    add_sides_needed(sheet)
+    highlight_ranges(sheet)
+    adjust_column_widths(sheet)
+    add_final_questions(sheet)
+
+    # Save the workbook to a file
+    workbook.save("catering_execution_sheet.xlsx")
+    # Print a success message
+    print("Excel file created successfully!")
+
+def add_slicing_prep_totals(sheet):
     # Totals for slicing prep
     sheet['E12'] = "Cheese"
     cheese_total = sum(sandwiches[sandwich].get("cheese", 0) * sandwiches[sandwich]["count"] for sandwich in sandwiches) + sum(wraps[wrap].get("cheese", 0) * wraps[wrap]["count"] for wrap in wraps)
@@ -193,7 +204,7 @@ def create_spreadsheet():
     sheet['H18'] = "# of Chicken bins needed"
     sheet['H19'] = round(chicken_total / portions_per_pack["chicken"], 2)
 
-
+def add_sides_needed(sheet):
     # Total sides for catering
     sheet['H20'] = "Amount of Sides Needed (Full Boxes)"
     sheet['G21'] = "Reg"
@@ -227,43 +238,11 @@ def create_spreadsheet():
         ['', '30 pc. Boxes', '18 pc. Boxes', 'Box Lunches', '12 Packs', 'Dasani', 'Coke Bottles', 'D/C Bottles', 'Sprite Bottles', 'G/H Wraps', 'Flour Wraps'],
         ['Do we have enough?']
     ]
-
     for row in sides_section:
         sheet.append(row)
 
-    # Define the range of cells to highlight
-    highlight_ranges = ["B1:V1", "B3:O3", "B5:B10", "E6:E8", "C12:C33", "F12:F19", "H12:H17", "H19:H19", "H21:H31", "C35:O35", "B39:K39"]
-
-    # Set the fill color to orange
-    fill = PatternFill(start_color="FFA500", end_color="FFA500", fill_type="solid")
-
-    # Set the border style
-    border = Border(left=Side(style='thin', color='000000'),
-                    right=Side(style='thin', color='000000'),
-                    top=Side(style='thin', color='000000'),
-                    bottom=Side(style='thin', color='000000'))
-
-    # Apply the fill color to the range of cells
-    for highlight_range in highlight_ranges:
-        for row in sheet[highlight_range]:
-            for cell in row:
-                cell.fill = fill
-                cell.border = border
-
-    # Adjust column widths to fit the content
-    for column_cells in sheet.columns:
-        max_length = 0
-        column = column_cells[0].column_letter  # Get the column letter
-        for cell in column_cells:
-            try:
-                if len(str(cell.value)) > max_length:
-                    max_length = len(cell.value)
-            except:
-                pass
-        adjusted_width = (max_length + 2) 
-        sheet.column_dimensions[column].width = adjusted_width
-
-    final_questions_section = [
+def add_final_questions(sheet):
+    final_questions = [
         [],
         ["What time is the opener starting?", ""],
         ["How many trays are needed to complete the order? By what time does this bread need to be out?", ""],
@@ -276,31 +255,62 @@ def create_spreadsheet():
         ["Does the order need mayo/mustard packets? Do you have enough?", ""],
         ["Email the completed spreadsheet to your boss once completed."]
     ]
-
-    for row in final_questions_section:
+    for row in final_questions:
         sheet.append(row)
 
+def highlight_ranges(sheet):
+     # Define the range of cells to highlight
+    highlight_ranges = ["B1:V1", "B3:O3", "B5:B10", "E6:E8", "C12:C33", "F12:F19", "H12:H17", "H19:H19", "H21:H31", "C35:O35", "B39:K39"]
+    # Set the fill color to orange
+    fill = PatternFill(start_color="FFA500", end_color="FFA500", fill_type="solid")
+    # Set the border style
+    border = Border(left=Side(style='thin', color='000000'),
+                    right=Side(style='thin', color='000000'),
+                    top=Side(style='thin', color='000000'),
+                    bottom=Side(style='thin', color='000000'))
+    # Apply the fill color to the range of cells
+    for highlight_range in highlight_ranges:
+        for row in sheet[highlight_range]:
+            for cell in row:
+                cell.fill = fill
+                cell.border = border
+
+def adjust_column_widths(sheet):
+    # Adjust column widths to fit the content
+    for column_cells in sheet.columns:
+        max_length = 0
+        column = column_cells[0].column_letter  # Get the column letter
+        for cell in column_cells:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(cell.value)
+            except:
+                pass
+        adjusted_width = (max_length + 2) 
+        sheet.column_dimensions[column].width = adjusted_width
     for row in sheet.iter_rows():
         for cell in row:
             cell.alignment = Alignment(horizontal='left')
 
-    # Save the workbook to a file
-    workbook.save("catering_execution_sheet.xlsx")
-
-    # Print a success message
-    print("Excel file created successfully!")
-
 def main():
     scanner = ReceiptScanner()
     scanner.main()
-    print("FILENAME: ", scanner.file)
-    output_file = scanner.file
-    ocr_text = read_ocr_output(output_file)
-    # Call the function to process the receipt
-    process_receipt(ocr_text, boxes)
-    process_receipt(ocr_text, sandwiches)
-    process_receipt(ocr_text, wraps)
-    process_receipt(ocr_text, side_counts)
+    print("FILENAMES: ", scanner.receipts_data)
+    
+    # Call the function to process the receipt for each receipt in receipts_data
+    for receipt in scanner.receipts_data:
+        output_file = receipt
+        ocr_text = read_ocr_output(output_file)
+        process_receipt(ocr_text, boxes)
+        process_receipt(ocr_text, sandwiches)
+        process_receipt(ocr_text, wraps)
+        process_receipt(ocr_text, side_counts)
+
+    #total_sandwiches, total_bread_usage, total_trays = calculate_total_sandwiches_and_bread(sandwiches)
+    #ready_time = find_ready_time(ocr_text)
+    #print("------------------------")
+    #print(f"Ready at {ready_time}")
+
 
     create_spreadsheet()
 

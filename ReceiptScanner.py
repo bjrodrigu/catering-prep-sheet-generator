@@ -6,13 +6,55 @@ import numpy as np # type: ignore
 import os
 import cv2 # type: ignore
 import re
-
-# How to run the script with the image: "python ReceiptScanner.py -i Receipt10.jpg"
-# How to run the script with the image and debug: "python ReceiptScanner.py -i Receipt10.jpg -d 1"
+import fitz 
+from PIL import Image
+import io
 
 class ReceiptScanner:
     def __init__(self):
-            self.file = ""
+            self.receipts_data = []
+
+    def pdfprocess(self, chosenPDF):
+        try:
+            doc = fitz.open(chosenPDF)
+            print("Number of pages: ", doc.page_count)
+            text = "" 
+            for page_number in range(doc.page_count):
+                page = doc.load_page(page_number)
+                page_text = page.get_text("text")  # Try plain text extraction first
+                
+                if not page_text:
+                    # If no text found, try extracting images and use OCR
+                    print(f"Attempting OCR on page {page_number + 1}")
+                    image_list = page.get_images(full=True)
+                    for img_index, img in enumerate(image_list):
+                        xref = img[0]
+                        base_image = doc.extract_image(xref)
+                        image_bytes = base_image["image"]
+                        image = Image.open(io.BytesIO(image_bytes))
+                        ocr_text = pytesseract.image_to_string(image)
+                        page_text += ocr_text
+
+                if page_text:
+                #    print(f"Text from page {page_number + 1}:")
+                #    print(page_text)
+                    text += page_text
+                else:
+                    print(f"No text found on page {page_number + 1}")
+
+                # Create output file name
+                base_name = os.path.splitext(chosenPDF)[0]
+                outputFile = f"{base_name}_processed.txt"
+                self.receipts_data.append(outputFile)
+
+                # Save the OCR output to the file
+                with open(outputFile, "w") as file:
+                    file.write(text)
+                print(f"OCR output saved to {outputFile}")
+            
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            return None
         
     def imageprocess(self, chosenImage):
         orig = cv2.imread(chosenImage)
@@ -76,16 +118,17 @@ class ReceiptScanner:
         text = pytesseract.image_to_string(
             cv2.cvtColor(receipt, cv2.COLOR_BGR2RGB),
             config=options)
+        
         # show the raw output of the OCR process
-        print("[INFO] raw output:")
-        print("==================")
-        print(text)
-        print("\n")
+        # print("[INFO] raw output:")
+        # print("==================")
+        # print(text)
+        # print("\n")
         
         # Create output file name
         base_name = os.path.splitext(chosenImage)[0]
         outputFile = f"{base_name}_processed.txt"
-        self.file = outputFile
+        self.receipts_data.append(outputFile)
 
         # Save the OCR output to the file
         with open(outputFile, "w") as file:
@@ -94,8 +137,15 @@ class ReceiptScanner:
 
 
     def main(self):
-        imageInput = input("Name of image file: ")
-        self.imageprocess(imageInput)
+        while True:
+            imageInput = input("Name of image file (or 'q' to quit): ")
+            if imageInput == 'q':
+                break
+            if imageInput.endswith(".pdf"):
+                print("PDF file detected")
+                self.pdfprocess(imageInput) 
+            else:
+                self.imageprocess(imageInput)
         
 if __name__ == "__main__":
     scanner = ReceiptScanner()

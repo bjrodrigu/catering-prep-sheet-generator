@@ -85,7 +85,7 @@ def process_receipt(receipt, dictionary):
         total_containers["PotSalad"] = round(potato_salad_containers_needed, 2)
         total_containers["PastaSalad"] = round(pasta_salad_containers_needed, 2)
          
-        
+
     
     processed_data = {
         "counts": dictionary,
@@ -117,10 +117,11 @@ def print_processed_data(processed_data):
                 print(f"{item}: {amount:.2f} containers")
 
 
-def calculate_total_sandwiches_and_bread():
+def calculate_total_sandwiches_and_bread(sandwiches):
     total_sandwiches = 0
     total_bread_usage = 0
     total_trays = 0
+    
 
     for item, info in sandwiches.items():
         count = info["count"]
@@ -134,7 +135,8 @@ def calculate_total_sandwiches_and_bread():
         
     total_trays = round(total_bread_usage/15,2)
 
-    print(f"{total_bread_usage} sticks of bread, {total_trays} trays of bread")       
+    print(f"{total_bread_usage} sticks of bread, {total_trays} trays of bread")
+    return total_sandwiches, total_bread_usage, total_trays       
 
 def find_ready_time(receipt):
     # Regular expression pattern to find "@ ready at" time in the receipt
@@ -172,7 +174,7 @@ def main():
     for receipt_data in processed_receipts:
         print_processed_data(receipt_data)
         print("-------------------------------------")
-    calculate_total_sandwiches_and_bread()
+    calculate_total_sandwiches_and_bread(sandwiches)
     print("-------------------------------------")
 
     
