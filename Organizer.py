@@ -3,14 +3,14 @@ import re
 import math
 #Create dictonaries(hashmaps) of the items that need to be counted 
 boxes = {
-    "30Pc Party Box":{"count":0},   "18Pc PartyBox":{"count":0},   "12 pack":{"count":0},
+    "30Pc Party Box":{"count":0},   "18Pc Party Box":{"count":0},   "12 pack":{"count":0},
     "Wrapbox":{"count":0}, "(Box)":{"count":0}
 }
 
 side_counts ={
-    "Regular" :{"count":0},   "BBQ":{"count":0},    "Jalapeno":{"count":0},   "S&V":{"count":0},    "Thinny":{"count":0},
+    "Regular Chips" :{"count":0},   "BBQ Chips":{"count":0},    "Jalapeno Chips":{"count":0},   "Salt & Vinger Chips":{"count":0},"Thinny Chips":{"count":0},
     "PotSalad":{"count":0},   "PastaSalad":{"count":0},     "PotSalad(LG)":{"count":0},   "PastaSalad(LG)":{"count":0},
-    "Pickle Bucket":{"count":0},"Chocolatechip":{"count":0},  "Oatmealrasin":{"count":0},   "Brownie":{"count":0}
+    "Pickle Bucket":{"count":0},"Choc Chip Cookie":{"count":0},  "Oatmeal Rasin Cookie":{"count":0},   "Brownie":{"count":0}
 }
     #the layout for the dic is sandwich name{Num of sandwiches, portion need to make the sandwiches after that}
 sandwiches={
@@ -51,7 +51,22 @@ def process_receipt(receipt, dictionary):
         occurrences = re.findall(re.escape(item), receipt, re.IGNORECASE)
         count = len(occurrences)
         info["count"] += count
+        
+    #extract items with quantities from receipt
+    pattern = r'\b(\d+)\s([a-zA-Z\d\s#]+)\b'
 
+    matches = re.findall(pattern, receipt)
+    extracted_items = [{'quantity': int(match[0]), 'item': match[1].strip()} for match in matches]
+    
+     # Iterate through each extracted item
+    for item_data in extracted_items:
+        item_name = item_data['item']
+        quantity = item_data['quantity']
+        
+        # If the extracted item is in the dictionary, update the count
+        if item_name in dictionary:
+            dictionary[item_name]["count"] += quantity
+    
     # Iterate through each sandwich
     for item, info in dictionary.items():
         count = info["count"]  # Get the count of this sandwich
@@ -160,7 +175,7 @@ def main():
     processed_receipts = []  # List to store processed receipt information
 
      # Assuming the input file was "Receipt2_processed.txt"
-    output_file = "Receipt6_processed.txt"
+    output_file = "Receipt7_processed.txt"
     ocr_text = read_ocr_output(output_file)
     # Call the function to process the receipt
     processed_receipts.append(process_receipt(ocr_text, boxes))
