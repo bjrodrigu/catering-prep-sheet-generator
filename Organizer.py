@@ -1,4 +1,3 @@
-import ReceiptScanner
 import re
 import math
 #Create dictonaries(hashmaps) of the items that need to be counted 
@@ -9,8 +8,8 @@ boxes = {
 
 side_counts ={
     "Regular Chips" :{"count":0},   "BBQ Chips":{"count":0},    "Jalapeno Chips":{"count":0},   "Salt & Vinger Chips":{"count":0},"Thinny Chips":{"count":0},
-    "PotSalad":{"count":0},   "PastaSalad":{"count":0},     "PotSalad(LG)":{"count":0},   "PastaSalad(LG)":{"count":0},
-    "Pickle Bucket":{"count":0},"Choc Chip Cookie":{"count":0},  "Oatmeal Rasin Cookie":{"count":0},   "Brownie":{"count":0}
+    "PotSalad":{"count":0},   "PastaSalad":{"count":0},     "PotSalad(LG)":{"count":0},   "PastaSalad(LG)":{"count":0}, "Pickles":{"count":0},
+    "Pickle Bucket":{"count":0},"Choc Chip Cookie":{"count":0},  "Oatmeal Rasin Cookie":{"count":0},   "Fudge Brownie":{"count":0}
 }
     #the layout for the dic is sandwich name{Num of sandwiches, portion need to make the sandwiches after that}
 sandwiches={
@@ -20,7 +19,7 @@ sandwiches={
     "#7 Spicy Italian":{"count":0,"cheese":1,"vito":2},"#8 Billy Club":{"count":0,"cheese":1,"ham":1,"roast beef":1},
     "#9 Italian Night Club":{"count":0,"cheese":1,"ham":1,"vito":1},"#10 Hunters Club":{"count":0,"cheese":1,"roast beef":2},
     "#11 Country Club":{"count":0,"cheese":1,"ham":1,"turkey":1},"#12 Beach Club":{"count":0,"cheese":2,"turkey":1},
-    "#13 Jimmy Cubano":{"count":0,"cheese":1,"ham":1,"bacon":4},"#14 Bootleger":{"count":0,"turkey":1,"roast beef":1},
+    "#13 Jimmy Cubano":{"count":0,"cheese":1,"ham":1,"bacon":4},"#14 Bootlegger":{"count":0,"turkey":1,"roast beef":1},
     "#15 Club Tuna":{"count":0,"cheese":2,"tuna":1},"#16 Club Lulu":{"count":0,"turkey":1,"bacon":3},
     "#17 Ultimate Porker":{"count":0,"ham":1,"bacon":3},
     "J.J. Garganutan":{"count":0,"cheese":1,"ham":1,"roast beef":1,"turkey":1,"vito":1}    
@@ -45,27 +44,25 @@ def process_receipt(receipt, dictionary):
     total_packs={}
     total_containers={}
     
-    
     for item, info in dictionary.items():
         count = 0
         occurrences = re.findall(re.escape(item), receipt, re.IGNORECASE)
         count = len(occurrences)
         info["count"] += count
-        
-    #extract items with quantities from receipt
-    pattern = r'\b(\d+)\s([a-zA-Z\d\s#]+)\b'
-
-    matches = re.findall(pattern, receipt)
-    extracted_items = [{'quantity': int(match[0]), 'item': match[1].strip()} for match in matches]
     
-     # Iterate through each extracted item
-    for item_data in extracted_items:
-        item_name = item_data['item']
-        quantity = item_data['quantity']
+    if dictionary is boxes:
+        extract_box_quantities(receipt,boxes)
         
-        # If the extracted item is in the dictionary, update the count
-        if item_name in dictionary:
-            dictionary[item_name]["count"] += quantity
+    if dictionary is side_counts:
+        extract_dessert_quantities(receipt, side_counts)
+        extract_chip_quantities(receipt,side_counts)
+        extract_pickle_quantities(receipt, side_counts)
+    
+    if dictionary is sandwiches:
+        extract_sandwich_quantities(receipt,sandwiches)
+
+    if dictionary is wraps:
+        extract_wrap_quantities(receipt,wraps)
     
     # Iterate through each sandwich
     for item, info in dictionary.items():
@@ -108,6 +105,141 @@ def process_receipt(receipt, dictionary):
         "total_containers": total_containers,
     }
     return processed_data
+
+def extract_box_quantities(text,boxes):
+    # Define a list of possible party box names
+    party_box_names = [
+        "30pc Party Box", "18pc Party Box", "12 Half Sandwiches", "Wrap Box"
+    ]
+    
+    # Join the party box names into a single string separated by '|'
+    party_box_names_pattern = '|'.join(map(re.escape, party_box_names))
+    
+    # Construct the regular expression pattern dynamically
+    party_box_pattern = r'(\d+)\s+(?:{})'.format(party_box_names_pattern)
+
+    # Find all matches of the party box pattern in the text
+    matches = re.findall(party_box_pattern, text)
+
+    # Update counts of specific party boxes in the party_boxes dictionary
+    for match in matches:
+        quantity, party_box_name = match
+        if party_box_name in boxes:
+            party_boxes[party_box_name]["count"] += int(quantity)-1
+
+def extract_sandwich_quantities(text,sandwiches):
+    # Define a list of possible sandwich names
+        sandwich_names = [
+        "#1 Pepe", "#2 Big John", "#3 Totally Tuna", "#4 Turkey Tom", "#5 Vito", "#6 Veggie","J.J. B.L.T.", "#7 Spicy Italian","#8 Billy Club",
+        "#9 Italian Night Club","#10 Hunters Club","#11 Country Club","#12 Beach Club","#13 Jimmy Cubano","#14 Bootlegger Club",
+        "#15 Club Tuna","#16 Club Lulu","#17 Ultimate Porker","J.J. Gargatuan"
+        
+        ]
+    
+        # Join the sandwich names into a single string separated by '|'
+        sandwich_names_pattern = '|'.join(map(re.escape, sandwich_names))
+    
+        # Construct the regular expression pattern dynamically
+        sandwich_pattern = r'(\d+)\s+#?\d*\s*(?:{})'.format(sandwich_names_pattern)
+
+        # Find all matches of the sandwich pattern in the text
+        matches = re.findall(sandwich_pattern, text)
+
+        for match in matches:
+            quantity, sandwich_name = match
+            if sandwich_name in sandwiches:
+                sandwiches[sandwich_name]["count"] += int(quantity)-1
+
+
+def extract_dessert_quantities(text,side_counts):
+    # Define regular expression pattern for cookies
+    dessert_pattern = r'(\d+)\s+(Oatmeal Raisin Cookie|Choc Chip Cookie|Fudge Brownie)\b'
+
+        # Find all matches of the cookie pattern in the text
+    matches = re.findall(dessert_pattern, text)
+
+        # Extract quantities from the matches
+    for match in matches:
+        quantity, dessert = match
+        if dessert in side_counts:
+            side_counts[dessert]["count"] += int(quantity) -1
+
+def extract_chip_quantities(text, chips):
+    # Define a list of possible chip names
+    chip_names = [
+        "Regular Chips", "BBQ Chips", "Jalapeno Chips", "Salt & Vinegar Chips", "Thinny Chips"
+    ]
+    
+    # Join the chip names into a single string separated by '|'
+    chip_names_pattern = '|'.join(map(re.escape, chip_names))
+    
+    # Construct the regular expression pattern dynamically
+    chip_pattern = r'(\d+)\s+((?:{}))'.format(chip_names_pattern)
+
+    # Find all matches of the chip pattern in the text
+    matches = re.findall(chip_pattern, text)
+
+    # Check if there's a variety option
+    variety_quantity = 0
+    new_matches = []
+    for quantity, chip_name in matches:
+        if chip_name.lower() == "variety":
+            variety_quantity = int(quantity)
+        else:
+            new_matches.append((quantity, chip_name))
+
+
+    # If there's a variety option, distribute quantities evenly among chip types
+    if variety_quantity:
+        total_chip_types = len(chip_names)
+        chips_per_type = variety_quantity // total_chip_types
+        extra_chips = variety_quantity % total_chip_types
+
+        # Update counts for each chip type
+        for i, chip_name in enumerate(chip_names):
+            quantity = chips_per_type + (1 if i < extra_chips else 0)
+            chips[chip_name]["count"] += quantity
+
+    # Update counts for each chip type from the matches
+    for quantity, chip_name in matches:
+        if chip_name in chips:
+            chips[chip_name]["count"] += int(quantity) -1
+
+def extract_wrap_quantities(text,wraps):
+    # Define a list of possible wrap names
+    wrap_names = [
+        "Chicken Caesar Wrap", "Jalpeno Ranch Wrap", "Tuscan Italian Wrap"
+    ]
+    
+    # Join the wrap names into a single string separated by '|'
+    wrap_names_pattern = '|'.join(map(re.escape, wrap_names))
+    
+    # Construct the regular expression pattern dynamically
+    wrap_pattern = r'(\d+)\s+(?:{})'.format(wrap_names_pattern)
+
+    # Find all matches of the wrap pattern in the text
+    matches = re.findall(wrap_pattern, text)
+
+    # Update counts of specific wraps in the wraps dictionary
+    for match in matches:
+        quantity, wrap_name = match
+        if wrap_name in wraps:
+            wraps[wrap_name]["count"] += int(quantity)
+
+def extract_pickle_quantities(text, pickles):
+    # Define regular expression patterns for pickles and pickle buckets
+    pickle_pattern = r'(\d+)\s+(?:Pickles)'
+    pickle_bucket_pattern = r'(\d+)\s+(Pickle\sBucket)'
+
+    # Find all matches of pickle pattern in the text
+    pickle_matches = re.findall(pickle_pattern, text)
+    for quantity, _ in pickle_matches:
+        pickles["Pickles"]["count"] += int(quantity)
+
+    # Find all matches of pickle bucket pattern in the text
+    pickle_bucket_matches = re.findall(pickle_bucket_pattern, text)
+    for quantity, _ in pickle_bucket_matches:
+        pickles["Pickle Bucket"]["count"] += int(quantity)
         
 def print_processed_data(processed_data):
     counts = processed_data["counts"]
@@ -175,7 +307,7 @@ def main():
     processed_receipts = []  # List to store processed receipt information
 
      # Assuming the input file was "Receipt2_processed.txt"
-    output_file = "Receipt7_processed.txt"
+    output_file = "Receipt6_processed.txt"
     ocr_text = read_ocr_output(output_file)
     # Call the function to process the receipt
     processed_receipts.append(process_receipt(ocr_text, boxes))
