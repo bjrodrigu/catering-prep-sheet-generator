@@ -7,9 +7,9 @@ boxes = {
 }
 
 side_counts ={
-    "Regular Chips" :{"count":0},   "BBQ Chips":{"count":0},    "Jalapeno Chips":{"count":0},   "Salt & Vinger Chips":{"count":0},"Thinny Chips":{"count":0},
+    "Regular Chips" :{"count":0},   "BBQ Chips":{"count":0},    "Jalapeno Chips":{"count":0},   "Salt Vin Chips":{"count":0},"Thinny Chips":{"count":0},
     "PotSalad":{"count":0},   "PastaSalad":{"count":0},     "PotSalad(LG)":{"count":0},   "PastaSalad(LG)":{"count":0}, "Pickles":{"count":0},
-    "Pickle Bucket":{"count":0},"Choc Chip Cookie":{"count":0},  "Oatmeal Rasin Cookie":{"count":0},   "Fudge Brownie":{"count":0}
+    "Pickle Bucket":{"count":0},"Choc Chip Cookie":{"count":0},  "Oatmeal Rasin Cookie":{"count":0},   "Fudge Choc Brownie":{"count":0}
 }
     #the layout for the dic is sandwich name{Num of sandwiches, portion need to make the sandwiches after that}
 sandwiches={
@@ -17,7 +17,7 @@ sandwiches={
     "#3 Totally Tuna":{"count":0,"tuna":1}, "#4 Turkey Tom":{"count":0,"turkey":1},
     "#5 Vito":{"count":0,"cheese":1,"vito":1},"#6 The Veggie":{"count":0,"cheese":2},"J.J. BLT":{"count":0,"bacon":6},
     "#7 Spicy Italian":{"count":0,"cheese":1,"vito":2},"#8 Billy Club":{"count":0,"cheese":1,"ham":1,"roast beef":1},
-    "#9 Italian Night Club":{"count":0,"cheese":1,"ham":1,"vito":1},"#10 Hunters Club":{"count":0,"cheese":1,"roast beef":2},
+    "#9 Italian Club":{"count":0,"cheese":1,"ham":1,"vito":1},"#10 Hunters Club":{"count":0,"cheese":1,"roast beef":2},
     "#11 Country Club":{"count":0,"cheese":1,"ham":1,"turkey":1},"#12 Beach Club":{"count":0,"cheese":2,"turkey":1},
     "#13 Jimmy Cubano":{"count":0,"cheese":1,"ham":1,"bacon":4},"#14 Bootlegger":{"count":0,"turkey":1,"roast beef":1},
     "#15 Club Tuna":{"count":0,"cheese":2,"tuna":1},"#16 Club Lulu":{"count":0,"turkey":1,"bacon":3},
@@ -52,6 +52,7 @@ def process_receipt(receipt, dictionary):
     
     if dictionary is boxes:
         extract_box_quantities(receipt,boxes)
+        ready_time = find_ready_time(receipt)
         
     if dictionary is side_counts:
         extract_dessert_quantities(receipt, side_counts)
@@ -103,13 +104,14 @@ def process_receipt(receipt, dictionary):
         "counts": dictionary,
         "total_portions": total_portions,
         "total_containers": total_containers,
+        "ready_time":ready_time
     }
     return processed_data
 
 def extract_box_quantities(text,boxes):
     # Define a list of possible party box names
     party_box_names = [
-        "30pc Party Box", "18pc Party Box", "12 Half Sandwiches", "Wrap Box"
+        "30Pc Party Box", "18Pc Party Box", "12 Half Sandwiches", "Wrap Box"
     ]
     
     # Join the party box names into a single string separated by '|'
@@ -130,8 +132,8 @@ def extract_box_quantities(text,boxes):
 def extract_sandwich_quantities(text,sandwiches):
     # Define a list of possible sandwich names
         sandwich_names = [
-        "#1 Pepe", "#2 Big John", "#3 Totally Tuna", "#4 Turkey Tom", "#5 Vito", "#6 Veggie","J.J. B.L.T.", "#7 Spicy Italian","#8 Billy Club",
-        "#9 Italian Night Club","#10 Hunters Club","#11 Country Club","#12 Beach Club","#13 Jimmy Cubano","#14 Bootlegger Club",
+        "#1 Pepe", "#2 Big John", "#3 Totally Tuna", "#4 Turkey Tom", "#5 Vito", "#6 The Veggie","J.J. B.L.T.", "#7 Spicy Italian","#8 Billy Club",
+        "#9 Italian Club","#10 Hunters Club","#11 Country Club","#12 Beach Club","#13 Jimmy Cubano","#14 Bootlegger Club",
         "#15 Club Tuna","#16 Club Lulu","#17 Ultimate Porker","J.J. Gargatuan"
         
         ]
@@ -140,7 +142,8 @@ def extract_sandwich_quantities(text,sandwiches):
         sandwich_names_pattern = '|'.join(map(re.escape, sandwich_names))
     
         # Construct the regular expression pattern dynamically
-        sandwich_pattern = r'(\d+)\s+#?\d*\s*(?:{})'.format(sandwich_names_pattern)
+        sandwich_pattern = r'(\d+)\s+({})'.format(sandwich_names_pattern)
+
 
         # Find all matches of the sandwich pattern in the text
         matches = re.findall(sandwich_pattern, text)
@@ -148,12 +151,10 @@ def extract_sandwich_quantities(text,sandwiches):
         for match in matches:
             quantity, sandwich_name = match
             if sandwich_name in sandwiches:
-                sandwiches[sandwich_name]["count"] += int(quantity)-1
-
-
+                sandwiches[sandwich_name]["count"] += int(quantity) - 1
 def extract_dessert_quantities(text,side_counts):
     # Define regular expression pattern for cookies
-    dessert_pattern = r'(\d+)\s+(Oatmeal Raisin Cookie|Choc Chip Cookie|Fudge Brownie)\b'
+    dessert_pattern = r'(\d+)\s+(Oatmeal Raisin Cookie|Choc Chip Cookie|Fudge Choc Brownie)\b'
 
         # Find all matches of the cookie pattern in the text
     matches = re.findall(dessert_pattern, text)
@@ -167,7 +168,7 @@ def extract_dessert_quantities(text,side_counts):
 def extract_chip_quantities(text, chips):
     # Define a list of possible chip names
     chip_names = [
-        "Regular Chips", "BBQ Chips", "Jalapeno Chips", "Salt & Vinegar Chips", "Thinny Chips"
+        "Regular Chips", "BBQ Chips", "Jalapeno Chips", "Salt Vin Chips", "Thinny Chips"
     ]
     
     # Join the chip names into a single string separated by '|'
@@ -303,26 +304,31 @@ def read_ocr_output(file_path):
         ocr_text = file.read()
     return ocr_text
 
-def main():
+def process_multiple_receipts(folder_path, boxes, sandwiches, wraps, side_counts):
     processed_receipts = []  # List to store processed receipt information
 
-     # Assuming the input file was "Receipt2_processed.txt"
-    output_file = "Receipt6_processed.txt"
-    ocr_text = read_ocr_output(output_file)
-    # Call the function to process the receipt
-    processed_receipts.append(process_receipt(ocr_text, boxes))
-    processed_receipts.append(process_receipt(ocr_text, sandwiches))
-    processed_receipts.append(process_receipt(ocr_text, wraps))
-    processed_receipts.append(process_receipt(ocr_text, side_counts))
-    ready_time = find_ready_time(ocr_text)
-    print("------------------------")
-    print(f"Ready at {ready_time}")
-    print("-------------------------")
+    # Iterate over all files in the folder
+    for file_name in os.listdir(folder_path):
+        file_path = os.path.join(folder_path, file_name)
+        if os.path.isfile(file_path):
+            ocr_text = read_ocr_output(file_path)
+            
+            processed_receipts.append(process_receipt(ocr_text, boxes))
+            processed_receipts.append(process_receipt(ocr_text, sandwiches))
+            processed_receipts.append(process_receipt(ocr_text, wraps))
+            processed_receipts.append(process_receipt(ocr_text, side_counts))
+            
+            find_ready_time(ocr_text)
+    
     for receipt_data in processed_receipts:
         print_processed_data(receipt_data)
-        print("-------------------------------------")
+    
     calculate_total_sandwiches_and_bread(sandwiches)
-    print("-------------------------------------")
+    
+    calculate_total_sandwiches_and_bread(sandwiches)
+def main():
+    process_multiple_receipts(folder_path, boxes, sandwiches, wraps, side_counts)
+    folder_path = "/catering/Catering-Project/files"
 
     
 
