@@ -46,15 +46,19 @@ class ReceiptScanner:
                 else:
                     print(f"No text found on page {page_number + 1}")
 
+            # Create the output folder if it doesn't exist
+            output_folder = 'receipt_text_files'
+            os.makedirs(output_folder, exist_ok=True)
+
             # Create output file name
-            base_name = os.path.splitext(chosenPDF)[0]
-            outputFile = f"{base_name}_processed.txt"
-            self.receipts_data.append(outputFile)
+            base_name = os.path.splitext(os.path.basename(chosenPDF))[0]
+            output_file = os.path.join(output_folder, f"{base_name}_processed.txt")
+            self.receipts_data.append(output_file)
 
             # Save the OCR output to the file
-            with open(outputFile, "w") as file:
+            with open(output_file, "w") as file:
                 file.write(text)
-            print(f"OCR output saved to {outputFile}")
+            print(f"OCR output saved to {output_file}")
 
         except Exception as e:
             print(f"An error occurred: {e}")
@@ -72,30 +76,35 @@ class ReceiptScanner:
             response = client.text_detection(image=image)
             text = response.full_text_annotation.text
 
+            # Create the output folder if it doesn't exist
+            output_folder = 'receipt_text_files'
+            os.makedirs(output_folder, exist_ok=True)
+
             # Create output file name
-            base_name = os.path.splitext(chosenImage)[0]
-            outputFile = f"{base_name}_processed.txt"
-            self.receipts_data.append(outputFile)
+            base_name = os.path.splitext(os.path.basename(chosenImage))[0]
+            output_file = os.path.join(output_folder, f"{base_name}_processed.txt")
+            self.receipts_data.append(output_file)
 
             # Save the OCR output to the file
-            with open(outputFile, "w") as file:
+            with open(output_file, "w") as file:
                 file.write(text)
-            print(f"OCR output saved to {outputFile}")
+            print(f"OCR output saved to {output_file}")
 
         except Exception as e:
             print(f"An error occurred: {e}")
             return None
 
     def main(self):
-        while True:
-            imageInput = input("Name of image file (or 'q' to quit): ")
-            if imageInput == 'q':
-                break
-            if imageInput.endswith(".pdf"):
+        folder_path = 'user_receipts/'
+        files = os.listdir(folder_path)
+    
+        for file_name in files:
+            if file_name.endswith(".pdf"):
                 print("PDF file detected")
-                self.pdfprocess(imageInput)
+                self.pdfprocess(os.path.join(folder_path, file_name))
             else:
-                self.imageprocess(imageInput)
+                print("Image file detected")
+                self.imageprocess(os.path.join(folder_path, file_name))
 
 if __name__ == "__main__":
     scanner = ReceiptScanner()
