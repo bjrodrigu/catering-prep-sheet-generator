@@ -52,6 +52,9 @@ const App = () => {
           <button type="submit" className="upload-button">Upload</button>
           {successMessage && <div className="success-message">{successMessage}</div>}
           {errorMessage && <div className="error-message">{errorMessage}</div>}
+          <a href="catering_execution_sheet.xlsx" download>
+            Download File
+          </a>
         </form>
       </div>
     </div>
