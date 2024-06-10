@@ -52,9 +52,8 @@ const App = () => {
           <button type="submit" className="upload-button">Upload</button>
           {successMessage && <div className="success-message">{successMessage}</div>}
           {errorMessage && <div className="error-message">{errorMessage}</div>}
-          <a href="catering_execution_sheet.xlsx" download>
-            Download File
-          </a>
+          <a href="/catering_execution_sheet.xlsx" download>Download Excel Sheet</a>
+          <label htmlFor="file" className="file-label" style={{ fontSize: 'smaller', textAlign: 'center' }}>Make sure to upload all receipts prior to downloading file</label>
         </form>
       </div>
     </div>

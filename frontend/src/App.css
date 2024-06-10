@@ -116,3 +116,7 @@ a {
   text-align: center;
   color: blue;
 }
+
+#downloadLink {
+  display: none; /* Hide the link by default */
+}
