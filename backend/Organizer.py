@@ -1,5 +1,7 @@
 import re
 import math
+import os
+
 #Create dictonaries(hashmaps) of the items that need to be counted 
 boxes = {
     "30Pc Party Box":{"count":0},   "18Pc Party Box":{"count":0},   "12 pack":{"count":0},
@@ -43,6 +45,8 @@ def process_receipt(receipt, dictionary):
     total_portions={}
     total_packs={}
     total_containers={}
+
+    ready_time = None
     
     for item, info in dictionary.items():
         count = 0

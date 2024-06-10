@@ -10,6 +10,10 @@ load_dotenv()
 class ReceiptScanner:
     def __init__(self):
         self.receipts_data = []
+        # Set the environment variable for Google Application Credentials
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        google_vision_api_path = os.path.join(script_dir, 'googlevisionapi.json')
+        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = google_vision_api_path
 
     def pdfprocess(self, chosenPDF):
         try:

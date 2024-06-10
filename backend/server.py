@@ -1,9 +1,11 @@
 from flask import *
 import os
+import subprocess
+
 
 app = Flask(__name__) 
 
-UPLOAD_FOLDER = '../user_receipts/' 
+UPLOAD_FOLDER = 'user_receipts/' 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
   
@@ -20,6 +22,10 @@ def upload():
         for file in files: 
             file_path = os.path.join(UPLOAD_FOLDER, file.filename)
             file.save(file_path)
-        return "Files Uploaded Successfully.!"
+
+        result = subprocess.run(['python', 'Spreadsheetmaker.py'], capture_output=True, text=True)
+
+        return f"Process completed. \nScript Output: \n{result.stdout}\nScript Errors: \n{result.stderr}"
+
 if __name__ == '__main__': 
     app.run(debug=True) 
