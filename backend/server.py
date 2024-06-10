@@ -23,7 +23,7 @@ def upload():
             file_path = os.path.join(UPLOAD_FOLDER, file.filename)
             file.save(file_path)
 
-        result = subprocess.run(['python', 'Spreadsheetmaker.py'], capture_output=True, text=True)
+        result = subprocess.run(['python', 'backend/Spreadsheetmaker.py'], capture_output=True, text=True)
 
         return f"Process completed. \nScript Output: \n{result.stdout}\nScript Errors: \n{result.stderr}"
 
