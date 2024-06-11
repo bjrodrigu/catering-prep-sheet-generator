@@ -11,23 +11,22 @@ boxes = {
     "Wrapbox": {"count": 0},
     "(Box)": {"count": 0}
 }
-
 side_counts = {
-    "Regular": {"count": 0},
-    "BBQ": {"count": 0},
-    "Jalapeno": {"count": 0},
-    "S&V": {"count": 0},
-    "Thinny": {"count": 0},
+    "Regular Chips": {"count": 0},
+    "BBQ Chips": {"count": 0},
+    "Jalapeno Chips": {"count": 0},
+    "Salt Vin Chips": {"count": 0},
+    "Thinny Chips": {"count": 0},
     "PotSalad": {"count": 0},
     "PastaSalad": {"count": 0},
     "PotSalad(LG)": {"count": 0},
     "PastaSalad(LG)": {"count": 0},
+    "Pickles": {"count": 0},
     "Pickle Bucket": {"count": 0},
-    "Chocolatechip": {"count": 0},
-    "Oatmealrasin": {"count": 0},
-    "Brownie": {"count": 0}
+    "Choc Chip Cookie": {"count": 0},
+    "Oatmeal Rasin Cookie": {"count": 0},
+    "Fudge Choc Brownie": {"count": 0}
 }
-
 sandwiches = {
     "#1 Pepe": {"count": 0, "cheese": 1, "ham": 1},
     "#2 Big John": {"count": 0, "roast beef": 1},
@@ -38,12 +37,12 @@ sandwiches = {
     "J.J. BLT": {"count": 0, "bacon": 6},
     "#7 Spicy Italian": {"count": 0, "cheese": 1, "vito": 2},
     "#8 Billy Club": {"count": 0, "cheese": 1, "ham": 1, "roast beef": 1},
-    "#9 Italian Night Club": {"count": 0, "cheese": 1, "ham": 1, "vito": 1},
+    "#9 Italian Club": {"count": 0, "cheese": 1, "ham": 1, "vito": 1},
     "#10 Hunters Club": {"count": 0, "cheese": 1, "roast beef": 2},
     "#11 Country Club": {"count": 0, "cheese": 1, "ham": 1, "turkey": 1},
     "#12 Beach Club": {"count": 0, "cheese": 2, "turkey": 1},
     "#13 Jimmy Cubano": {"count": 0, "cheese": 1, "ham": 1, "bacon": 4},
-    "#14 Bootleger": {"count": 0, "turkey": 1, "roast beef": 1},
+    "#14 Bootlegger": {"count": 0, "turkey": 1, "roast beef": 1},
     "#15 Club Tuna": {"count": 0, "cheese": 2, "tuna": 1},
     "#16 Club Lulu": {"count": 0, "turkey": 1, "bacon": 3},
     "#17 Ultimate Porker": {"count": 0, "ham": 1, "bacon": 3},
@@ -76,11 +75,18 @@ items_per_box = {
     "S&V": 72,
     "Thinny": 72,
     "Chocolate Chip": 56,
-    "Oatmeal Rasin": 56,
+    "Oatmeal Raisin": 56,
     "Brownies": 42,
     "pasta salad": 2041.17,
     "potato salad": 3628.74,
     "Pickles": 60
+}
+
+total_grams = {
+    "PotSalad": 142.0,
+    "PastaSalad": 113.0,
+    "PotSalad(LG)": 851,
+    "PastaSalad(LG)": 680
 }
 
 
@@ -91,14 +97,20 @@ def create_spreadsheet():
     sheet = workbook.active
 
     # Define placeholder values
-    quantities = [""] + [0, 0, 0, 0, boxes["30Pc Party Box"]["count"], boxes["(Box)"]["count"], boxes["12 pack"]["count"], boxes["18Pc PartyBox"]["count"], boxes["Wrapbox"]["count"], 0, 0, 0, 0, 0]
+    
     trays_of_15 = 0 # placeholder value
     total_extra_trays = 0 # placeholder value
-    total_pickles = boxes["(Box)"]["count"] # placeholder value
+    total_pickles = boxes["(Box)"]["count"] / 4 
     num_of_gh_wraps = sum(wraps[wrap].get("garlic herb", 0) * wraps[wrap]["count"] for wrap in wraps)
     num_of_flour_wraps = sum(wraps[wrap].get("flour", 0) * wraps[wrap]["count"] for wrap in wraps)
+    total_wraps = num_of_flour_wraps + num_of_gh_wraps
+
     projection = 0 # placeholder value
     projection_with_catering = 0 # placeholder value
+
+    total_sandwiches = sum(sandwiches[sandwich]["count"] for sandwich in sandwiches.values())
+
+    quantities = [""] + [0, total_wraps, total_sandwiches, 0, boxes["30Pc Party Box"]["count"], boxes["(Box)"]["count"], boxes["12 pack"]["count"], boxes["18Pc PartyBox"]["count"], boxes["Wrapbox"]["count"], 0, 0, 0, 0, 0]
 
     # Define sandwich totals
     sandwich_totals = [
@@ -133,7 +145,7 @@ def create_spreadsheet():
         quantities,
         [],
         ["Trays of 15 for little johns", trays_of_15],
-        ["Lay out extra trays of bread", total_extra_trays, "", "Pickles to slice for Box Lunch", total_pickles / 4],
+        ["Lay out extra trays of bread", total_extra_trays, "", "Pickles to slice for Box Lunch", total_pickles],
         ["Number of G/H wraps needed", num_of_gh_wraps, "", "G/H Wrap packs needed for order", num_of_gh_wraps / portions_per_pack["garlic herb wrap"]],
         ["Number of Flour wraps needed", num_of_flour_wraps, "", "Flour Wrap packs needed for order", num_of_flour_wraps / portions_per_pack["flour wrap"]],
         ["Projection for shift w/out catering", projection],
@@ -226,9 +238,9 @@ def add_sides_needed(sheet):
     sheet['G29'] = "Brownies"
     sheet['H29'] = round(side_counts["Brownie"]["count"] / items_per_box["Brownies"], 2)
     sheet['G30'] = "Pasta Salad"
-    sheet['H30'] = round(side_counts["PastaSalad"]["count"] / items_per_box["pasta salad"], 2)
+    sheet['H30'] = round(side_counts["PastaSalad"]["count"] * total_grams["PastaSalad"] + side_counts["PastaSalad(LG)"]["count"] * total_grams["PastaSalad(LG)"]/ items_per_box["pasta salad"], 2)
     sheet['G31'] = "Potato Salad"
-    sheet['H31'] = round(side_counts["PotSalad"]["count"] / items_per_box["potato salad"], 2)
+    sheet['H31'] = round(side_counts["PotSalad"]["count"] * total_grams["PotSalad"] + side_counts["PotSalad(LG)"]["count"] * total_grams["PastaSalad(LG)"] / items_per_box["potato salad"], 2)
 
     sides_section = [ 
         ['', '', 'Reg Chips', 'BBQ Chips', 'Jal Chips', 'S/V Chips', 'Thinny', 'CC Cookies', 'OR Cookies', 'Brownies', 'Pickle Buckets', 'Pasta Sm.', 'Pasta Lg.', 'Potato Sm.', 'Potato Lg.'],
