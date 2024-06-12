@@ -24,7 +24,7 @@ side_counts = {
     "Pickles": {"count": 0},
     "Pickle Bucket": {"count": 0},
     "Choc Chip Cookie": {"count": 0},
-    "Oatmeal Rasin Cookie": {"count": 0},
+    "Oatmeal Raisin Cookie": {"count": 0},
     "Fudge Choc Brownie": {"count": 0}
 }
 sandwiches = {
@@ -108,7 +108,7 @@ def create_spreadsheet():
     projection = 0 # placeholder value
     projection_with_catering = 0 # placeholder value
 
-    total_sandwiches = sum(sandwiches[sandwich]["count"] for sandwich in sandwiches.values())
+    total_sandwiches = sum(sandwich["count"] for sandwich in sandwiches.values())
 
     quantities = [""] + [0, total_wraps, total_sandwiches, 0, boxes["30Pc Party Box"]["count"], boxes["(Box)"]["count"], boxes["12 pack"]["count"], boxes["18Pc PartyBox"]["count"], boxes["Wrapbox"]["count"], 0, 0, 0, 0, 0]
 
@@ -122,12 +122,12 @@ def create_spreadsheet():
         ["", 6, sandwiches["#6 The Veggie"]["count"]],
         ["", 7, sandwiches["#7 Spicy Italian"]["count"]],
         ["", 8, sandwiches["#8 Billy Club"]["count"]],
-        ["", 9, sandwiches["#9 Italian Night Club"]["count"]],
+        ["", 9, sandwiches["#9 Italian Club"]["count"]],
         ["", 10, sandwiches["#10 Hunters Club"]["count"]],
         ["", 11, sandwiches["#11 Country Club"]["count"]],
         ["", 12, sandwiches["#12 Beach Club"]["count"]],
         ["", 13, sandwiches["#13 Jimmy Cubano"]["count"]],
-        ["", 14, sandwiches["#14 Bootleger"]["count"]],
+        ["", 14, sandwiches["#14 Bootlegger"]["count"]],
         ["", 15, sandwiches["#15 Club Tuna"]["count"]],
         ["", 16, sandwiches["#16 Club Lulu"]["count"]],
         ["", 17, sandwiches["#17 Ultimate Porker"]["count"]],
@@ -168,7 +168,7 @@ def create_spreadsheet():
     add_final_questions(sheet)
 
     # Save the workbook to a file
-    workbook.save("frontend/public/catering_execution_sheet.xlsx")
+    workbook.save("../frontend/public/catering_execution_sheet.xlsx")
     # Print a success message
     print("Excel file created successfully!")
 
@@ -220,23 +220,23 @@ def add_sides_needed(sheet):
     # Total sides for catering
     sheet['H20'] = "Amount of Sides Needed (Full Boxes)"
     sheet['G21'] = "Reg"
-    sheet['H21'] = round(side_counts["Regular"]["count"] / items_per_box["Regular"], 2)
+    sheet['H21'] = round(side_counts["Regular Chips"]["count"] / items_per_box["Regular"], 2)
     sheet['G22'] = "BBQ"
-    sheet['H22'] = round(side_counts["BBQ"]["count"] / items_per_box["BBQ"], 2)
+    sheet['H22'] = round(side_counts["BBQ Chips"]["count"] / items_per_box["BBQ"], 2)
     sheet['G23'] = "Jal"
-    sheet['H23'] = round(side_counts["Jalapeno"]["count"] / items_per_box["Jalapeno"], 2)
+    sheet['H23'] = round(side_counts["Jalapeno Chips"]["count"] / items_per_box["Jalapeno"], 2)
     sheet['G24'] = "S/V"
-    sheet['H24'] = round(side_counts["S&V"]["count"] / items_per_box["S&V"], 2)
+    sheet['H24'] = round(side_counts["Salt Vin Chips"]["count"] / items_per_box["S&V"], 2)
     sheet['G25'] = "Thinny"
-    sheet['H25'] = round(side_counts["Thinny"]["count"] / items_per_box["Thinny"], 2)
+    sheet['H25'] = round(side_counts["Thinny Chips"]["count"] / items_per_box["Thinny"], 2)
     sheet['G26'] = "CC"
-    sheet['H26'] = round(side_counts["Chocolatechip"]["count"] / items_per_box["Chocolate Chip"], 2)
+    sheet['H26'] = round(side_counts["Choc Chip Cookie"]["count"] / items_per_box["Chocolate Chip"], 2)
     sheet['G27'] = "OR"
-    sheet['H27'] = round(side_counts["Oatmealrasin"]["count"] / items_per_box["Oatmeal Rasin"], 2)
+    sheet['H27'] = round(side_counts["Oatmeal Raisin Cookie"]["count"] / items_per_box["Oatmeal Raisin"], 2)
     sheet['G28'] = "Pickles"
     sheet['H28'] = round(side_counts["Pickle Bucket"]["count"] / items_per_box["Pickles"], 2)
     sheet['G29'] = "Brownies"
-    sheet['H29'] = round(side_counts["Brownie"]["count"] / items_per_box["Brownies"], 2)
+    sheet['H29'] = round(side_counts["Fudge Choc Brownie"]["count"] / items_per_box["Brownies"], 2)
     sheet['G30'] = "Pasta Salad"
     sheet['H30'] = round(side_counts["PastaSalad"]["count"] * total_grams["PastaSalad"] + side_counts["PastaSalad(LG)"]["count"] * total_grams["PastaSalad(LG)"]/ items_per_box["pasta salad"], 2)
     sheet['G31'] = "Potato Salad"
@@ -244,7 +244,7 @@ def add_sides_needed(sheet):
 
     sides_section = [ 
         ['', '', 'Reg Chips', 'BBQ Chips', 'Jal Chips', 'S/V Chips', 'Thinny', 'CC Cookies', 'OR Cookies', 'Brownies', 'Pickle Buckets', 'Pasta Sm.', 'Pasta Lg.', 'Potato Sm.', 'Potato Lg.'],
-        ["How many sides do you need?", '', side_counts["Regular"]["count"], side_counts["BBQ"]["count"], side_counts["Jalapeno"]["count"], side_counts["S&V"]["count"], side_counts["Thinny"]["count"], side_counts["Chocolatechip"]["count"], side_counts["Oatmealrasin"]["count"], side_counts["Brownie"]["count"], side_counts["Pickle Bucket"]["count"], side_counts["PastaSalad"]["count"], side_counts["PastaSalad(LG)"]["count"], side_counts["PotSalad"]["count"], side_counts["PotSalad(LG)"]["count"]],
+        ["How many sides do you need?", '', side_counts["Regular Chips"]["count"], side_counts["BBQ Chips"]["count"], side_counts["Jalapeno Chips"]["count"], side_counts["Salt Vin Chips"]["count"], side_counts["Thinny Chips"]["count"], side_counts["Choc Chip Cookie"]["count"], side_counts["Oatmeal Raisin Cookie"]["count"], side_counts["Fudge Choc Brownie"]["count"], side_counts["Pickle Bucket"]["count"], side_counts["PotSalad"]["count"], side_counts["PastaSalad(LG)"]["count"], side_counts["PotSalad(LG)"]["count"], side_counts["PastaSalad(LG)"]["count"]],
         ["(Includes what's needed for box lunches)"],
         [],
         ['', '30 pc. Boxes', '18 pc. Boxes', 'Box Lunches', '12 Packs', 'Dasani', 'Coke Bottles', 'D/C Bottles', 'Sprite Bottles', 'G/H Wraps', 'Flour Wraps'],
