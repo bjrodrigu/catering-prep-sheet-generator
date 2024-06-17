@@ -1,4 +1,10 @@
-clean:
-	rm -r backend/receipt_text_files/*
-	rm -r backend/user_receipts/*
-	rm -r frontend/public/catering_execution_sheet.xlsx
+.PHONY: start-backend start-frontend start
+
+start-backend:
+	cd backend/ && python server.py &
+
+start-frontend:
+	cd frontend/ && npm start &
+
+start: start-backend start-frontend
+
