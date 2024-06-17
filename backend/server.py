@@ -26,6 +26,22 @@ def upload():
         result = subprocess.run(['python', 'Spreadsheetmaker.py'], capture_output=True, text=True)
 
         return f"Process completed. \nScript Output: \n{result.stdout}\nScript Errors: \n{result.stderr}"
+    
+@app.route('/delete-files', methods=['POST'])
+def delete_files():
+    try:
+        # List files in the directory
+        list_files_process_1 = subprocess.run(['rm', '-r', 'user_receipts/*'], capture_output=True, text=True)
+        list_files_process_2 = subprocess.run(['ls', 'receipt_text_files/'], capture_output=True, text=True)
+        list_files_process_3 = subprocess.run(['ls', '../frontend/public/'], capture_output=True, text=True)
+        
+        # Perform deletion (uncomment when ready to delete)
+        # subprocess.run(['rm', '-r', 'user_receipts/'])
+
+        return jsonify({'user_receipts': list_files_process_1.stdout, 'receipt_text_files': list_files_process_2.stdout, 'sheet': list_files_process_3.stdout})
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__': 
     app.run(debug=True) 
