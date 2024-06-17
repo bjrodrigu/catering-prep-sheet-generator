@@ -31,14 +31,15 @@ def upload():
 def delete_files():
     try:
         # List files in the directory
-        list_files_process_1 = subprocess.run(['rm', '-r', 'user_receipts/*'], capture_output=True, text=True)
+        list_files_process_1 = subprocess.run(['ls', 'user_receipts/'], capture_output=True, text=True)
         list_files_process_2 = subprocess.run(['ls', 'receipt_text_files/'], capture_output=True, text=True)
-        list_files_process_3 = subprocess.run(['ls', '../frontend/public/'], capture_output=True, text=True)
         
-        # Perform deletion (uncomment when ready to delete)
-        # subprocess.run(['rm', '-r', 'user_receipts/'])
+        # Perform deletion
+        subprocess.run('rm user_receipts/*', shell=True)
+        subprocess.run('rm receipt_text_files/*', shell=True)
+        subprocess.run('rm ../frontend/public/catering_execution_sheet.xlsx', shell=True)
 
-        return jsonify({'user_receipts': list_files_process_1.stdout, 'receipt_text_files': list_files_process_2.stdout, 'sheet': list_files_process_3.stdout})
+        return jsonify({'user_receipts': list_files_process_1.stdout, 'receipt_text_files': list_files_process_2.stdout})
     
     except Exception as e:
         return jsonify({'error': str(e)}), 500

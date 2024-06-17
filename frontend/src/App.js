@@ -36,7 +36,7 @@ const App = () => {
       setTimeout(() => {
         setSuccessMessage('');
         setVisible(true);
-      }, 5000); // Clear the message after 5 seconds
+      }, 3000);
 
     } catch (error) {
       console.error('Error uploading files:', error);
@@ -44,21 +44,18 @@ const App = () => {
       setSuccessMessage('');
       setTimeout(() => {
         setErrorMessage('');
-      }, 5000); // Clear the message after 5 seconds
+      }, 3000); 
     }
   };
 
   function deleteFiles() {
     axios.post('/delete-files')
       .then(function (response) {
-        console.log('Files deleted:', response.data.user_receipts, response.data.receipt_text_files, response.data.sheet);
-        // Handle success
+        console.log('Files deleted:', response.data.user_receipts, response.data.receipt_text_files);
       })
       .catch(function (error) {
         console.error('Error deleting files:', error.response.data.error);
-        // Handle error
       });
-
   }
 
   return (

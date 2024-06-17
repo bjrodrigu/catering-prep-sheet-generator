@@ -98,7 +98,9 @@
   color: #155724;
   border: 1px solid #c3e6cb;
   border-radius: 4px;
+  text-align: center;
 }
+
 
 .error-message {
   margin-top: 1rem;
