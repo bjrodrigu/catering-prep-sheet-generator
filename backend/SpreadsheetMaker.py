@@ -50,7 +50,7 @@ sandwiches = {
 }
 
 wraps={
-    "Chicken Ceaser":{"count":0,"chicken":1,"garlic herb wrap":1},
+    "Chicken Caesar":{"count":0,"chicken":1,"garlic herb wrap":1},
     "Jalapeno Ranch":{"count":0,"cheese":1,"chicken":1,"flour wrap":1},
     "Tuscan Italian":{"count":0,"vito":1,"ham":1,"garlic herb wrap":1}   
 }

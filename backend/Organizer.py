@@ -5,16 +5,18 @@ import os
 #Create dictonaries(hashmaps) of the items that need to be counted 
 boxes = {
     "30Pc Party Box":{"count":0},   "18Pc Party Box":{"count":0},   "12 pack":{"count":0},
-    "Wrapbox":{"count":0}, "(Box)":{"count":0}
+    "12 Half Wraps":{"count":0}, "(Box)":{"count":0}
 }
 
 side_counts ={
     "Regular Chips" :{"count":0},   "BBQ Chips":{"count":0},    "Jalapeno Chips":{"count":0},   "Salt Vin Chips":{"count":0},"Thinny Chips":{"count":0},
-    "PotSalad":{"count":0},   "PastaSalad":{"count":0},     "PotSalad(LG)":{"count":0},   "PastaSalad(LG)":{"count":0}, "Pickles":{"count":0},
+    "PotSalad":{"count":0},   "PastaSalad":{"count":0},     "PotSalad (LG)":{"count":0},   "PastaSalad (LG)":{"count":0}, "Pickles":{"count":0},
     "Pickle Bucket":{"count":0},"Choc Chip Cookie":{"count":0},  "Oatmeal Rasin Cookie":{"count":0},   "Fudge Choc Brownie":{"count":0}
 }
     #the layout for the dic is sandwich name{Num of sandwiches, portion need to make the sandwiches after that}
 sandwiches={
+    "Slim 1":{"count":0,"cheese":1,"ham":1}, "Slim 2":{"count":0,"roast beef":1},"Slim 3":{"count":0,"tuna":1},
+    "Slim 4":{"count":0,"turkey":1}, "Slim 5":{"count":0,"cheese":1,"vito":1},"Slim 6":{"count":0,"cheese":2},"Slim Bacon":{"count":0,"bacon":6},
     "#1 Pepe": {"count":0,"cheese":1, "ham":1}, "#2 Big John":{"count":0,"roast beef":1},
     "#3 Totally Tuna":{"count":0,"tuna":1}, "#4 Turkey Tom":{"count":0,"turkey":1},
     "#5 Vito":{"count":0,"cheese":1,"vito":1},"#6 The Veggie":{"count":0,"cheese":2},"J.J. BLT":{"count":0,"bacon":6},
@@ -27,7 +29,7 @@ sandwiches={
     "J.J. Garganutan":{"count":0,"cheese":1,"ham":1,"roast beef":1,"turkey":1,"vito":1}    
 }
 wraps={
-    "Chicken Ceaser":{"count":0,"chicken":1,"garlic herb wrap":1},"Jalapeno Ranch":{"count":0,"cheese":1,"chicken":1,"flour wrap":1},
+    "Chicken Caesar":{"count":0,"chicken":1,"garlic herb wrap":1},"Jalapeno Ranch":{"count":0,"cheese":1,"chicken":1,"flour wrap":1},
     "Tuscan Italian":{"count":0,"vito":1,"ham":1,"galric herb wrap":1}   
 }
 portions_per_pack={
@@ -38,7 +40,7 @@ items_per_box={
     ,"Chocolate Chip":56,"Oatmeal Rasin":56,"Brownies":42,"pasta salad":2041.17,"potato salad":2267.96
 }
 total_grams={
-    "PotSalad":142.0,   "PastaSalad":113.0,     "PotSalad(LG)":851,   "PastaSalad(LG)":680
+    "PotSalad":142.0,   "PastaSalad":113.0,     "PotSalad (LG)":851,   "PastaSalad (LG)":680
 }
 
 def process_receipt(receipt, dictionary):
@@ -88,9 +90,9 @@ def process_receipt(receipt, dictionary):
             # Calculate total grams of potato and pasta salad used
     if dictionary is side_counts:
         total_potato_salad_grams = (side_counts["PotSalad"]["count"] * total_grams["PotSalad"] +
-                                    side_counts["PotSalad(LG)"]["count"] * total_grams["PotSalad(LG)"])
+                                    side_counts["PotSalad (LG)"]["count"] * total_grams["PotSalad (LG)"])
         total_pasta_salad_grams = (side_counts["PastaSalad"]["count"] * total_grams["PastaSalad"] +
-                                side_counts["PastaSalad(LG)"]["count"] * total_grams["PastaSalad(LG)"])
+                                side_counts["PastaSalad (LG)"]["count"] * total_grams["PastaSalad (LG)"])
         
         # Calculate the number of full containers needed for potato and pasta salad
         potato_salad_container_size = items_per_box["potato salad"]
@@ -331,13 +333,13 @@ def process_multiple_receipts(folder_path, boxes, sandwiches, wraps, side_counts
     
     calculate_total_sandwiches_and_bread(sandwiches)
 def main():
+    folder_path = "receipt_text_files"
     process_multiple_receipts(folder_path, boxes, sandwiches, wraps, side_counts)
-    folder_path = "/catering/Catering-Project/files"
+    
 
     
 
 
-    
     
 if __name__ == "__main__":
     main()
