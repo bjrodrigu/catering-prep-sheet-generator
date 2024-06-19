@@ -7,12 +7,14 @@ const App = () => {
   const [files, setFiles] = useState([]);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [visible, setVisible] = useState(false);
 
   const handleFileChange = (event) => {
     setFiles(event.target.files);
   };
 
   const handleSubmit = async (event) => {
+    console.log("Running handleSubmit")
     event.preventDefault();
 
     const formData = new FormData();
@@ -29,18 +31,32 @@ const App = () => {
       console.log('Files uploaded successfully:', response.data);
       setSuccessMessage('Files uploaded successfully!');
       setErrorMessage('');
+      setVisible(false);
+      console.log("Visible: ", visible)
       setTimeout(() => {
         setSuccessMessage('');
-      }, 5000); // Clear the message after 5 seconds
+        setVisible(true);
+      }, 3000);
+
     } catch (error) {
       console.error('Error uploading files:', error);
       setErrorMessage('Error uploading files. Please try again.');
       setSuccessMessage('');
       setTimeout(() => {
         setErrorMessage('');
-      }, 5000); // Clear the message after 5 seconds
+      }, 3000); 
     }
   };
+
+  function deleteFiles() {
+    axios.post('/delete-files')
+      .then(function (response) {
+        console.log('Files deleted:', response.data.user_receipts, response.data.receipt_text_files);
+      })
+      .catch(function (error) {
+        console.error('Error deleting files:', error.response.data.error);
+      });
+  }
 
   return (
     <div>
@@ -52,7 +68,11 @@ const App = () => {
           <button type="submit" className="upload-button">Upload</button>
           {successMessage && <div className="success-message">{successMessage}</div>}
           {errorMessage && <div className="error-message">{errorMessage}</div>}
-          <a href="/catering_execution_sheet.xlsx" download>Download Excel Sheet</a>
+          {visible && (
+            <a href="/catering_execution_sheet.xlsx" download onClick={deleteFiles}>
+              Download Excel Sheet
+            </a>
+          )}
           <label htmlFor="file" className="file-label" style={{ fontSize: 'smaller', textAlign: 'center' }}>Make sure to upload all receipts prior to downloading file</label>
         </form>
       </div>
