@@ -257,9 +257,11 @@ def add_final_questions(sheet):
     final_questions = [
         [],
         ["What time is the opener starting?", ""],
+        ["Does the opener need support?(if yes who is it and what time will they be in)",""]
         ["How many trays are needed to complete the order? By what time does this bread need to be out?", ""],
         ["Do we need to bake bread at another location to complete the order on time?", ""],
-        ["Do we need extra workers to execute this order? Who have we called? Who is making the food?", ""],
+        ["Do we need extra workers to execute this order?", ""],
+        ["Please fill out the execution below. Enter a name and what time they will be in",""]
         ["How much extra meat and cheese do we need to slice?", ""],
         ["Do we need extra parm cheese prepped? What about avo, LTO skus, chicken?", ""],
         ["Do we need to order extra produce?", ""],

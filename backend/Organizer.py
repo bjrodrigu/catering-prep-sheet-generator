@@ -1,17 +1,20 @@
 import re
 import math
 import os
+from datetime import datetime
 
 #Create dictonaries(hashmaps) of the items that need to be counted 
 boxes = {
-    "30Pc Party Box":{"count":0},   "18Pc Party Box":{"count":0},   "12 pack":{"count":0},
-    "12 Half Wraps":{"count":0}, "(Box)":{"count":0}
+    "30Pc Party Box":{"count":0},   "18Pc Party Box":{"count":0},   "12 Half Sandwiches":{"count":0},
+    "12 Half Wraps":{"count":0}, "(Box)":{"count":0}, "Bottled Drink Bundle":{"count":0},"Chips Bundle":{"count":0},
+    "Desserts Bundle":{"count":0}
 }
 
 side_counts ={
     "Regular Chips" :{"count":0},   "BBQ Chips":{"count":0},    "Jalapeno Chips":{"count":0},   "Salt Vin Chips":{"count":0},"Thinny Chips":{"count":0},
     "PotSalad":{"count":0},   "PastaSalad":{"count":0},     "PotSalad (LG)":{"count":0},   "PastaSalad (LG)":{"count":0}, "Pickles":{"count":0},
-    "Pickle Bucket":{"count":0},"Choc Chip Cookie":{"count":0},  "Oatmeal Rasin Cookie":{"count":0},   "Fudge Choc Brownie":{"count":0}
+    "Pickle Bucket":{"count":0},"Choc Chip Cookie":{"count":0},  "Oatmeal Rasin Cookie":{"count":0},   "Fudge Choc Brownie":{"count":0},
+    "Coke(Bottle)":{"count":0},"Sprite(Bottle)":{"count":0}
 }
     #the layout for the dic is sandwich name{Num of sandwiches, portion need to make the sandwiches after that}
 sandwiches={
@@ -40,7 +43,7 @@ items_per_box={
     ,"Chocolate Chip":56,"Oatmeal Rasin":56,"Brownies":42,"pasta salad":2041.17,"potato salad":2267.96
 }
 total_grams={
-    "PotSalad":142.0,   "PastaSalad":113.0,     "PotSalad (LG)":851,   "PastaSalad (LG)":680
+    "PotSalad":142.0,   "PastaSalad":113.0,     "PotSalad(LG)":851,   "PastaSalad(LG)":680
 }
 
 def process_receipt(receipt, dictionary):
@@ -90,9 +93,9 @@ def process_receipt(receipt, dictionary):
             # Calculate total grams of potato and pasta salad used
     if dictionary is side_counts:
         total_potato_salad_grams = (side_counts["PotSalad"]["count"] * total_grams["PotSalad"] +
-                                    side_counts["PotSalad (LG)"]["count"] * total_grams["PotSalad (LG)"])
+                                    side_counts["PotSalad(LG)"]["count"] * total_grams["PotSalad(LG)"])
         total_pasta_salad_grams = (side_counts["PastaSalad"]["count"] * total_grams["PastaSalad"] +
-                                side_counts["PastaSalad (LG)"]["count"] * total_grams["PastaSalad (LG)"])
+                                side_counts["PastaSalad(LG)"]["count"] * total_grams["PastaSalad(LG)"])
         
         # Calculate the number of full containers needed for potato and pasta salad
         potato_salad_container_size = items_per_box["potato salad"]
@@ -112,6 +115,7 @@ def process_receipt(receipt, dictionary):
         "total_containers": total_containers,
         "ready_time":ready_time
     }
+    
     return processed_data
 
 def extract_box_quantities(text,boxes):
@@ -324,22 +328,46 @@ def process_multiple_receipts(folder_path, boxes, sandwiches, wraps, side_counts
             processed_receipts.append(process_receipt(ocr_text, wraps))
             processed_receipts.append(process_receipt(ocr_text, side_counts))
             
-            find_ready_time(ocr_text)
+        
+            
+    order = create_order_from_processed_data(processed_data)        
     
     for receipt_data in processed_receipts:
-        print_processed_data(receipt_data)
+        order = create_order_from_processed_data(processed_data) 
+    
+        
     
     calculate_total_sandwiches_and_bread(sandwiches)
     
-    calculate_total_sandwiches_and_bread(sandwiches)
+def create_order_from_processed_data(processed_data):
+    counts = processed_data["counts"]
+    total_portions = processed_data["total_portions"]
+    total_containers = processed_data["total_containers"]
+    ready_time = processed_data["ready_time"]
+    order = Order(ready_time, counts, total_portions, total_containers)
+    return order    
+    
 def main():
     folder_path = "receipt_text_files"
     process_multiple_receipts(folder_path, boxes, sandwiches, wraps, side_counts)
     
-
-    
-
-
     
 if __name__ == "__main__":
     main()
+    
+class Order:
+    def __init__(self, ready_time, counts=None, total_portions=0, total_containers=0):
+        if isinstance(ready_time, str):
+            self.ready_time = datetime.strptime(ready_time, "%Y-%m-%d %H:%M:%S")
+        else:
+            self.ready_time = ready_time
+        self.counts = counts if counts is not None else {}
+        self.total_portions = total_portions
+        self.total_containers = total_containers
+
+    def __str__(self):
+        items_str = ', '.join(f"{key}: {value}" for key, value in self.counts.items())
+        return (f"Order Ready Time: {self.ready_time.strftime('%Y-%m-%d %H:%M:%S')}\n"
+                f"Items: {items_str}\n"
+                f"Total Portions: {self.total_portions}\n"
+                f"Total Containers: {self.total_containers}")
