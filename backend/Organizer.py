@@ -35,6 +35,18 @@ wraps={
     "Chicken Caesar":{"count":0,"chicken":1,"garlic herb wrap":1},"Jalapeno Ranch":{"count":0,"cheese":1,"chicken":1,"flour wrap":1},
     "Tuscan Italian":{"count":0,"vito":1,"ham":1,"galric herb wrap":1}   
 }
+alternate_names ={
+    "#9 Italian": "#9 Italian Club",
+    "#10 Hunter's": "#10 Hunters Club",
+    "#11 Country":"#11 Country Club",
+    "#17 Ultimate P":"#17 Ultimate Porker",
+    "JJ Garganutan":"J.J. Garganutan",
+    "CCW":"Chicken Caesar",
+    "JRW":"Jalapeno Ranch",
+    "TIW":"Tuscan Italian",
+    "Chocolate Chip Cookie":"Choc Chip Cookie"
+}
+
 portions_per_pack={
     "cheese":60, "vito":25,"roast beef":30, "turkey":25,"ham":25,"chicken":7,"bacon":150,"garlic herb wrap":12,"flour wrap":12
 }
@@ -45,6 +57,7 @@ items_per_box={
 total_grams={
     "PotSalad":142.0,   "PastaSalad":113.0,     "PotSalad(LG)":851,   "PastaSalad(LG)":680
 }
+
 
 def process_receipt(receipt, dictionary):
     total_portions={}
@@ -57,6 +70,12 @@ def process_receipt(receipt, dictionary):
         count = 0
         occurrences = re.findall(re.escape(item), receipt, re.IGNORECASE)
         count = len(occurrences)
+        
+        for alt_name, primary_name in alternate_names.items():
+            if primary_name == item:
+                occurrences = re.findall(re.escape(alt_name), receipt, re.IGNORECASE)
+                count += len(occurrences)
+                
         info["count"] += count
     
     if dictionary is boxes:
@@ -329,13 +348,22 @@ def process_multiple_receipts(folder_path, boxes, sandwiches, wraps, side_counts
             processed_receipts.append(process_receipt(ocr_text, side_counts))
             
         
-            
-    order = create_order_from_processed_data(processed_data)        
+    orders_list =[]            
     
     for receipt_data in processed_receipts:
-        order = create_order_from_processed_data(processed_data) 
+        order = create_order_from_processed_data(processed_data)
+        orders_list.append(order) 
     
-        
+    grand_total =0.0
+    
+    total_pattern = re.compile(r'Total\s*\s*\$([0-9]+(?:\.[0-9]{2})?)')
+
+    # Process each receipt
+    for receipt in processed_receipts:
+        match = total_pattern.search(receipt)
+        if match:
+            total_amount = float(match.group(1))
+            grand_total += total_amount    
     
     calculate_total_sandwiches_and_bread(sandwiches)
     
