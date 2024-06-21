@@ -1,6 +1,11 @@
 # Use an appropriate base image that includes Python and pip
 FROM python:3.9-slim
 
+# Install pip explicitly (in case it's somehow missing)
+RUN apt-get update \
+    && apt-get install -y python3-pip \
+    && python3 -m pip install --upgrade pip
+
 # Set the working directory inside the container
 WORKDIR /app
 
