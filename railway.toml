@@ -1,0 +1,11 @@
+# railway.toml
+
+[project]
+name = "catering-project"
+
+[services.backend]
+path = "backend"
+start = "python3 /app/backend/server.py"
+build = """
+docker build -t my-image:latest -f backend/Dockerfile ./backend
+"""
