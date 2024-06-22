@@ -7,7 +7,10 @@ WORKDIR /app
 # Install Python and pip
 RUN apt-get update && \
     apt-get install -y python3 python3-pip && \
-    python3 -m pip install --upgrade pip
+    rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip to the latest version
+RUN python3 -m pip install --upgrade pip
 
 # Copy the local contents of the directory to the working directory in the container
 COPY . /app/
