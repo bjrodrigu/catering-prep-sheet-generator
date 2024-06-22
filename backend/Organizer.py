@@ -156,7 +156,7 @@ def extract_box_quantities(text,boxes):
     for match in matches:
         quantity, party_box_name = match
         if party_box_name in boxes:
-            party_boxes[party_box_name]["count"] += int(quantity)-1
+            boxes[party_box_name]["count"] += int(quantity)-1
 
 def extract_sandwich_quantities(text,sandwiches):
     # Define a list of possible sandwich names
@@ -185,10 +185,10 @@ def extract_dessert_quantities(text,side_counts):
     # Define regular expression pattern for cookies
     dessert_pattern = r'(\d+)\s+(Oatmeal Raisin Cookie|Choc Chip Cookie|Fudge Choc Brownie)\b'
 
-        # Find all matches of the cookie pattern in the text
+    # Find all matches of the cookie pattern in the text
     matches = re.findall(dessert_pattern, text)
 
-        # Extract quantities from the matches
+    # Extract quantities from the matches
     for match in matches:
         quantity, dessert = match
         if dessert in side_counts:
@@ -236,7 +236,6 @@ def extract_chip_quantities(text, chips):
             chips[chip_name]["count"] += int(quantity) -1
 
 def extract_wrap_quantities(text,wraps):
-    # Define a list of possible wrap names
     wrap_names = [
         "Chicken Caesar Wrap", "Jalpeno Ranch Wrap", "Tuscan Italian Wrap"
     ]
@@ -351,7 +350,7 @@ def process_multiple_receipts(folder_path, boxes, sandwiches, wraps, side_counts
     orders_list =[]            
     
     for receipt_data in processed_receipts:
-        order = create_order_from_processed_data(processed_data)
+        order = create_order_from_processed_data(receipt_data)
         orders_list.append(order) 
     
     grand_total =0.0
