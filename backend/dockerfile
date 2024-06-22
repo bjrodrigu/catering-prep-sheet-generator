@@ -1,9 +1,9 @@
-# backend/Dockerfile
+# catering-project/backend/Dockerfile
 
 FROM python:3.9-slim
 
 # Set the working directory
-WORKDIR /backend
+WORKDIR /app/backend
 
 # Copy requirements file and install dependencies
 COPY requirements.txt .
