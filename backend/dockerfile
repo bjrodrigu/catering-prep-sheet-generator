@@ -19,6 +19,8 @@ RUN pip install virtualenv \
 
 # Install dependencies from requirements.txt
 RUN pip install -r requirements.txt
+    
+RUN pip install Flask
 
 # Copy the application code into the container
 COPY . .
