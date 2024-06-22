@@ -262,6 +262,9 @@ def add_final_questions(sheet):
         ["Do we need to bake bread at another location to complete the order on time?", ""],
         ["Do we need extra workers to execute this order?", ""],
         ["Please fill out the execution below. Enter a name and what time they will be in",""]
+        ["Bread:               Meats:                  Consolidator:           ",""]
+        ["Bread:               Meats:                  Consolidator:           ",""]
+        ["Who will be setting up the shift?What time will they be in?",""]
         ["How much extra meat and cheese do we need to slice?", ""],
         ["Do we need extra parm cheese prepped? What about avo, LTO skus, chicken?", ""],
         ["Do we need to order extra produce?", ""],
