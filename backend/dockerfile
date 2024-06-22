@@ -14,13 +14,12 @@ WORKDIR /app/backend
 COPY requirements.txt .
 
 # Install virtualenv and create a virtual environment
-RUN pip install virtualenv \
-    && python -m virtualenv $VIRTUAL_ENV
-
+RUN pip install --upgrade pip && \
+    pip install virtualenv && \
+    virtualenv $VIRTUAL_ENV
+    
 # Install dependencies from requirements.txt
 RUN pip install -r requirements.txt
-    
-RUN pip install Flask
 
 # Copy the application code into the container
 COPY . .
