@@ -7,14 +7,14 @@ from datetime import datetime
 boxes = {
     "30Pc Party Box":{"count":0},   "18Pc Party Box":{"count":0},   "12 Half Sandwiches":{"count":0},
     "12 Half Wraps":{"count":0}, "(Box)":{"count":0}, "Bottled Drink Bundle":{"count":0},"Chips Bundle":{"count":0},
-    "Desserts Bundle":{"count":0}
+    "Desserts Bundle":{"count":0},"GIANT":{"count":0},"Lil John":{"count":0}
 }
 
 side_counts ={
     "Regular Chips" :{"count":0},   "BBQ Chips":{"count":0},    "Jalapeno Chips":{"count":0},   "Salt Vin Chips":{"count":0},"Thinny Chips":{"count":0},
     "PotSalad":{"count":0},   "PastaSalad":{"count":0},     "PotSalad (LG)":{"count":0},   "PastaSalad (LG)":{"count":0}, "Pickles":{"count":0},
     "Pickle Bucket":{"count":0},"Choc Chip Cookie":{"count":0},  "Oatmeal Rasin Cookie":{"count":0},   "Fudge Choc Brownie":{"count":0},
-    "Coke(Bottle)":{"count":0},"Sprite(Bottle)":{"count":0}
+    "Coke(Bottle)":{"count":0},"Sprite(Bottle)":{"count":0},"Diet Coke(Bottle)":{"count":0}
 }
     #the layout for the dic is sandwich name{Num of sandwiches, portion need to make the sandwiches after that}
 sandwiches={
@@ -44,7 +44,8 @@ alternate_names ={
     "CCW":"Chicken Caesar",
     "JRW":"Jalapeno Ranch",
     "TIW":"Tuscan Italian",
-    "Chocolate Chip Cookie":"Choc Chip Cookie"
+    "Chocolate Chip Cookie":"Choc Chip Cookie",
+    "Wrap Box":"12 Half Wraps"
 }
 
 portions_per_pack={
@@ -316,16 +317,39 @@ def calculate_total_sandwiches_and_bread(sandwiches):
     return total_sandwiches, total_bread_usage, total_trays       
 
 def find_ready_time(receipt):
-    # Regular expression pattern to find "@ ready at" time in the receipt
-    ready_pattern = r'@ (\d{1,2}:\d{2})'
+    # Regular expression pattern to find the date at the top of the receipt (e.g., "2024-06-22")
+    date_pattern = r'^(\d{2}-\d{2}-\d{4})'  # Assuming the date format is DD-MM-YYYY
+    
+    # Regular expression pattern to find "ready at" time in the receipt (e.g., "@ 2:30 PM")
+    ready_pattern = r'@ (\d{1,2}:\d{2}(?:\s*[APM]{2})?)'  # Adjusted for optional AM/PM
 
-    # Search for the "@ ready at" time pattern in the receipt
-    match = re.search(ready_pattern, receipt, re.IGNORECASE)
+    # Search for the date pattern in the receipt
+    date_match = re.search(date_pattern, receipt, re.IGNORECASE | re.MULTILINE)
 
-    if match:
-        return match.group(1)  # Return the matched time
+    # Search for the "ready at" time pattern in the receipt
+    time_match = re.search(ready_pattern, receipt, re.IGNORECASE)
+
+    if date_match and time_match:
+        date_str = date_match.group(1)  # Get the matched date string
+        time_str = time_match.group(1)  # Get the matched time string
+
+        # Combine the date and time strings
+        combined_str = f"{date_str} {time_str}"
+
+        # Parse the combined date and time string into a datetime object
+        try:
+            # If AM/PM is present, use 12-hour format, otherwise assume 24-hour format
+            if 'AM' in time_str.upper() or 'PM' in time_str.upper():
+                ready_time = datetime.strptime(combined_str, "%d-%m-%Y %I:%M %p")
+            else:
+                ready_time = datetime.strptime(combined_str, "%d-%m-%Y %H:%M")
+            
+            return ready_time
+        except ValueError as e:
+            print(f"Error parsing date and time: {e}")
+            return None
     else:
-        return None  # Return None if no time is found
+        return None  # Return None if no date or time is found
     
 #get the string from other file 
 def read_ocr_output(file_path):
