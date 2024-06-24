@@ -1,2 +1,10 @@
+google-cloud-vision 
+Pillow               
+PyMuPDF            
+python-dotenv     
+pandas               
+openpyxl             
+Flask              
+gunicorn            
 
 
