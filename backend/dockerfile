@@ -10,11 +10,17 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 # Set the working directory in the container
 WORKDIR /app/
 
+# Install virtualenv
+RUN pip install virtualenv
+
+# Create a virtual environment
+RUN virtualenv $VIRTUAL_ENV
+
 # Copy all code into the container
 COPY . .
 
 # Install dependencies from requirements.txt
-RUN pip install -r requirements.txt
+RUN . $VIRTUAL_ENV/bin/activate && pip install -r requirements.txt
 
 # Specify the command to run your server
 CMD ["python", "server.py"]
