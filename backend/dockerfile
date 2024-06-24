@@ -13,10 +13,6 @@ WORKDIR /backend/
 # Copy all code into the container
 COPY . .
 
-# Install virtualenv and create a virtual environment
-RUN pip install virtualenv \
-    && python -m virtualenv $VIRTUAL_ENV
-
 # Install dependencies from requirements.txt
 RUN pip install -r requirements.txt
 
