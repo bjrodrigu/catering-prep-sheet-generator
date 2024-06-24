@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import *
 import os
 import subprocess
 
@@ -9,9 +9,9 @@ UPLOAD_FOLDER = 'user_receipts/'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
   
-@app.route('/') 
-def main(): 
-    return render_template("index.html") 
+@app.route('/')
+def index():
+    return app.send_static_file('../frontend/public/index.html')
   
 @app.route('/upload', methods=['POST']) 
 def upload(): 
@@ -23,7 +23,7 @@ def upload():
             file_path = os.path.join(UPLOAD_FOLDER, file.filename)
             file.save(file_path)
 
-        result = subprocess.run(['python', 'Spreadsheetmaker.py'], capture_output=True, text=True)
+        result = subprocess.run(['python', 'backend/Spreadsheetmaker.py'], capture_output=True, text=True)
 
         return f"Process completed. \nScript Output: \n{result.stdout}\nScript Errors: \n{result.stderr}"
     
@@ -37,7 +37,7 @@ def delete_files():
         # Perform deletion
         subprocess.run('rm user_receipts/*', shell=True)
         subprocess.run('rm receipt_text_files/*', shell=True)
-        subprocess.run('rm ../frontend/public/catering_execution_sheet.xlsx', shell=True)
+        subprocess.run('rm frontend/public/catering_execution_sheet.xlsx', shell=True)
 
         return jsonify({'user_receipts': list_files_process_1.stdout, 'receipt_text_files': list_files_process_2.stdout})
     
@@ -45,6 +45,4 @@ def delete_files():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__': 
-    app.run(debug=True)
-    app.run(host='0.0.0.0', port=5000) 
-    
+    app.run(debug=True)    
