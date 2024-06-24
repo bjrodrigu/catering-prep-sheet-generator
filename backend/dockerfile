@@ -8,7 +8,7 @@ ENV VIRTUAL_ENV=/opt/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Set the working directory in the container
-WORKDIR /backend/
+WORKDIR /app/
 
 # Copy all code into the container
 COPY . .
