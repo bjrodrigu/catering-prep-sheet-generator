@@ -6,5 +6,5 @@ pandas
 openpyxl             
 Flask              
 gunicorn            
-
+flask-cors
 

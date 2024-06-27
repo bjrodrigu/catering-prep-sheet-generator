@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify, send_from_directory
+from flask_cors import CORS
 import os
 import subprocess
 
 app = Flask(__name__, static_folder='../frontend/build', static_url_path='')
+CORS(app)
 
 UPLOAD_FOLDER = 'user_receipts/'
 OUTPUT_FOLDER = 'frontend/build'
