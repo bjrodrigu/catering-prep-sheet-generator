@@ -34,7 +34,7 @@ const App = () => {
       console.log('Response Data:', response.data);
 
       if (response.data.output_file) {
-        setDownloadLink(`${BACKEND_URLL}/download/${response.data.output_file}`); // changed to BACKEND_URL
+        setDownloadLink(`${BACKEND_URL}/download/${response.data.output_file}`); // changed to BACKEND_URL
         setSuccessMessage('Files uploaded successfully!');
         setErrorMessage('');
         setVisible(true);
