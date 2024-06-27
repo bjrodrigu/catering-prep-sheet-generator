@@ -5,6 +5,9 @@ import subprocess
 app = Flask(__name__, static_folder='../frontend/build', static_url_path='')
 
 UPLOAD_FOLDER = 'user_receipts/'
+OUTPUT_FOLDER = 'frontend/build'
+EXCEL_FILENAME = 'catering_execution_sheet.xlsx'
+
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
@@ -31,7 +34,25 @@ def upload():
         # Run the external script
         result = subprocess.run(['python', 'backend/Spreadsheetmaker.py'], capture_output=True, text=True)
 
-        return f"Process completed. \nScript Output: \n{result.stdout}\nScript Errors: \n{result.stderr}"
+        # Check if the Excel file exists
+        excel_file_path = os.path.join(OUTPUT_FOLDER, EXCEL_FILENAME)
+        if os.path.exists(excel_file_path):
+            return jsonify({
+                "message": "Process completed.",
+                "output_file": EXCEL_FILENAME,
+                "script_output": result.stdout,
+                "script_errors": result.stderr
+            })
+        else:
+            return jsonify({
+                "message": "Process completed but file not found.",
+                "script_output": result.stdout,
+                "script_errors": result.stderr
+            }), 500
+
+@app.route('/download/<filename>', methods=['GET'])
+def download_file(filename):
+    return send_from_directory(OUTPUT_FOLDER, filename)
 
 @app.route('/delete-files', methods=['POST'])
 def delete_files():
@@ -43,7 +64,7 @@ def delete_files():
         # Perform deletion
         subprocess.run(['rm', '-f', os.path.join(UPLOAD_FOLDER, '*')], shell=True)
         subprocess.run(['rm', '-f', 'receipt_text_files/*'], shell=True)
-        subprocess.run(['rm', '-f', 'frontend/build/catering_execution_sheet.xlsx'], shell=True)
+        subprocess.run(['rm', '-f', os.path.join(OUTPUT_FOLDER, EXCEL_FILENAME)], shell=True)
 
         return jsonify({'user_receipts': list_files_process_1.stdout, 'receipt_text_files': list_files_process_2.stdout})
     

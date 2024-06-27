@@ -30,22 +30,21 @@ const App = () => {
         },
       });
       console.log('Files uploaded successfully:', response.data);
-      setSuccessMessage('Files uploaded successfully!');
-      setErrorMessage('');
-      setDownloadLink(`${process.env.REACT_APP_BACKEND_URL}/download/${response.data.output_file}`);
-      setVisible(false);
-      setTimeout(() => {
-        setSuccessMessage('');
+      if (response.data.output_file) {
+        setDownloadLink(`${process.env.REACT_APP_BACKEND_URL}/download/${response.data.output_file}`);
+        setSuccessMessage('Files uploaded successfully!');
+        setErrorMessage('');
         setVisible(true);
-      }, 3000);
-
+      } else {
+        setErrorMessage('File not generated.');
+        setSuccessMessage('');
+        setVisible(false);
+      }
     } catch (error) {
       console.error('Error uploading files:', error);
       setErrorMessage('Error uploading files. Please try again.');
       setSuccessMessage('');
-      setTimeout(() => {
-        setErrorMessage('');
-      }, 3000); 
+      setVisible(false);
     }
   };
 
