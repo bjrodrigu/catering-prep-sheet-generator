@@ -5,7 +5,7 @@ name = "catering-project"
 
 [services.backend]
 path = "backend"
-start = "python3 /app/backend/server.py"
+start = "python3 /backend/server.py"
 build = """
 docker build -t my-image:latest -f backend/Dockerfile ./backend
 """

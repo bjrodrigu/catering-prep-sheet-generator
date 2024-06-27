@@ -171,7 +171,7 @@ def create_spreadsheet():
     add_final_questions(sheet)
 
     # Save the workbook to a file
-    workbook.save("../frontend/public/catering_execution_sheet.xlsx")
+    workbook.save("frontend/public/catering_execution_sheet.xlsx")
     # Print a success message
     print("Excel file created successfully!")
 
