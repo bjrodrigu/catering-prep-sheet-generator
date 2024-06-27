@@ -4,7 +4,7 @@ import os
 import subprocess
 
 app = Flask(__name__, static_folder='../frontend/build', static_url_path='')
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})  # Allow all origins for simplicity
 
 UPLOAD_FOLDER = 'user_receipts/'
 OUTPUT_FOLDER = 'frontend/build'
@@ -74,4 +74,4 @@ def delete_files():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5956)))
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))

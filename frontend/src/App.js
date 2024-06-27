@@ -29,10 +29,9 @@ const App = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
-
       console.log("Backend URL:", process.env.REACT_APP_BACKEND_URL);
       console.log('Response Data:', response.data);
-      
+
       if (response.data.output_file) {
         setDownloadLink(`${process.env.REACT_APP_BACKEND_URL}/download/${response.data.output_file}`);
         setSuccessMessage('Files uploaded successfully!');
