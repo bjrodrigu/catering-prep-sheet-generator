@@ -8,7 +8,6 @@ CORS(app, resources={r"/*": {"origins": "https://www.doubledscarqteringexecution
 
 UPLOAD_FOLDER = 'user_receipts/'
 OUTPUT_FOLDER = 'frontend/build'
-EXCEL_FILENAME = 'catering_execution_sheet.xlsx'
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
