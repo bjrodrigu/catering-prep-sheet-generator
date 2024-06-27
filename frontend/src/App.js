@@ -8,6 +8,7 @@ const App = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [visible, setVisible] = useState(false);
+  const [downloadLink, setDownloadLink] = useState('');
 
   const handleFileChange = (event) => {
     setFiles(event.target.files);
@@ -31,8 +32,8 @@ const App = () => {
       console.log('Files uploaded successfully:', response.data);
       setSuccessMessage('Files uploaded successfully!');
       setErrorMessage('');
+      setDownloadLink(`${process.env.REACT_APP_BACKEND_URL}/download/${response.data.output_file}`);
       setVisible(false);
-      console.log("Visible: ", visible);
       setTimeout(() => {
         setSuccessMessage('');
         setVisible(true);
@@ -49,7 +50,7 @@ const App = () => {
   };
 
   const deleteFiles = () => {
-    axios.post('/delete-files')
+    axios.post(`${process.env.REACT_APP_BACKEND_URL}/delete-files`)
       .then(response => {
         console.log('Files deleted:', response.data.user_receipts, response.data.receipt_text_files);
       })
@@ -69,7 +70,7 @@ const App = () => {
           {successMessage && <div className="success-message">{successMessage}</div>}
           {errorMessage && <div className="error-message">{errorMessage}</div>}
           {visible && (
-            <a href="/catering_execution_sheet.xlsx" download onClick={deleteFiles}>
+            <a href={downloadLink} download onClick={deleteFiles}>
               Download Excel Sheet
             </a>
           )}
