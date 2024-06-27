@@ -1,48 +1,54 @@
-from flask import *
+from flask import Flask, request, jsonify, send_from_directory
 import os
 import subprocess
 
+app = Flask(__name__, static_folder='../frontend/build', static_url_path='')
 
-app = Flask(__name__) 
-
-UPLOAD_FOLDER = 'user_receipts/' 
+UPLOAD_FOLDER = 'user_receipts/'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
-  
+
+# Serve React App
 @app.route('/')
 def index():
-    return app.send_static_file('../frontend/public/index.html')
-  
-@app.route('/upload', methods=['POST']) 
-def upload(): 
-    if request.method == 'POST': 
-        # Get the list of files from webpage 
-        files = request.files.getlist("file") 
-        # Iterate for each file in the files List, and Save them 
-        for file in files: 
+    return app.send_static_file('index.html')
+
+# Serve Static Files (React)
+@app.route('/<path:path>')
+def serve_static(path):
+    return send_from_directory(app.static_folder, path)
+
+@app.route('/upload', methods=['POST'])
+def upload():
+    if request.method == 'POST':
+        # Get the list of files from the webpage
+        files = request.files.getlist("file")
+        # Iterate for each file in the files list, and save them
+        for file in files:
             file_path = os.path.join(UPLOAD_FOLDER, file.filename)
             file.save(file_path)
 
+        # Run the external script
         result = subprocess.run(['python', 'backend/Spreadsheetmaker.py'], capture_output=True, text=True)
 
         return f"Process completed. \nScript Output: \n{result.stdout}\nScript Errors: \n{result.stderr}"
-    
+
 @app.route('/delete-files', methods=['POST'])
 def delete_files():
     try:
-        # List files in the directory
-        list_files_process_1 = subprocess.run(['ls', 'user_receipts/'], capture_output=True, text=True)
+        # List files in the directories
+        list_files_process_1 = subprocess.run(['ls', UPLOAD_FOLDER], capture_output=True, text=True)
         list_files_process_2 = subprocess.run(['ls', 'receipt_text_files/'], capture_output=True, text=True)
         
         # Perform deletion
-        subprocess.run('rm user_receipts/*', shell=True)
-        subprocess.run('rm receipt_text_files/*', shell=True)
-        subprocess.run('rm frontend/public/catering_execution_sheet.xlsx', shell=True)
+        subprocess.run(['rm', '-f', os.path.join(UPLOAD_FOLDER, '*')], shell=True)
+        subprocess.run(['rm', '-f', 'receipt_text_files/*'], shell=True)
+        subprocess.run(['rm', '-f', 'frontend/build/catering_execution_sheet.xlsx'], shell=True)
 
         return jsonify({'user_receipts': list_files_process_1.stdout, 'receipt_text_files': list_files_process_2.stdout})
     
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-if __name__ == '__main__': 
-    app.run()    
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))

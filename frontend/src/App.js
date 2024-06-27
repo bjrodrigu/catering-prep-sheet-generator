@@ -14,7 +14,7 @@ const App = () => {
   };
 
   const handleSubmit = async (event) => {
-    console.log("Running handleSubmit")
+    console.log("Running handleSubmit");
     event.preventDefault();
 
     const formData = new FormData();
@@ -32,7 +32,7 @@ const App = () => {
       setSuccessMessage('Files uploaded successfully!');
       setErrorMessage('');
       setVisible(false);
-      console.log("Visible: ", visible)
+      console.log("Visible: ", visible);
       setTimeout(() => {
         setSuccessMessage('');
         setVisible(true);
@@ -48,15 +48,15 @@ const App = () => {
     }
   };
 
-  function deleteFiles() {
+  const deleteFiles = () => {
     axios.post('/delete-files')
-      .then(function (response) {
+      .then(response => {
         console.log('Files deleted:', response.data.user_receipts, response.data.receipt_text_files);
       })
-      .catch(function (error) {
+      .catch(error => {
         console.error('Error deleting files:', error.response.data.error);
       });
-  }
+  };
 
   return (
     <div>
