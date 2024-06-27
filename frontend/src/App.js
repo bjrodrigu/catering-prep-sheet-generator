@@ -9,7 +9,6 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [visible, setVisible] = useState(false);
   const [downloadLink, setDownloadLink] = useState('');
-  const BACKEND_URL = "https://catering-project.railway.internal"
 
   const handleFileChange = (event) => {
     setFiles(event.target.files);
@@ -25,7 +24,7 @@ const App = () => {
     }
 
     try {
-      const response = await axios.post(`${BACKEND_URL}/upload`, formData, { // changed to BACKEND_URL
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -34,7 +33,7 @@ const App = () => {
       console.log('Response Data:', response.data);
 
       if (response.data.output_file) {
-        setDownloadLink(`${BACKEND_URL}/download/${response.data.output_file}`); // changed to BACKEND_URL
+        setDownloadLink(`${process.env.REACT_APP_BACKEND_URL}/download/${response.data.output_file}`);
         setSuccessMessage('Files uploaded successfully!');
         setErrorMessage('');
         setVisible(true);
@@ -52,7 +51,7 @@ const App = () => {
   };
 
   const deleteFiles = () => {
-    axios.post(`${BACKEND_URL}/delete-files`) // CHANGED TO BACKEND_URL
+    axios.post(`${process.env.REACT_APP_BACKEND_URL}/delete-files`)
       .then(response => {
         console.log('Files deleted:', response.data.user_receipts, response.data.receipt_text_files);
       })
