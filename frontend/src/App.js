@@ -9,7 +9,7 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [visible, setVisible] = useState(false);
   const [downloadLink, setDownloadLink] = useState('');
-  const BACKEND_URL = "https://catering-project-backend.up.railway.app"
+  const BACKEND_URL = "https://catering-project.railway.internal"
 
   const handleFileChange = (event) => {
     setFiles(event.target.files);
