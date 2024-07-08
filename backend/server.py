@@ -4,7 +4,7 @@ import os
 import subprocess
 
 app = Flask(__name__, static_folder='../frontend/build', static_url_path='')
-CORS(app, resources={r"/*": {"origins": "https://www.doubledscarqteringexecution.com"}})
+CORS(app, resources={r"/*": {"origins": "https://www.doubledscateringexecution.com/"}})
 
 UPLOAD_FOLDER = 'user_receipts/'
 OUTPUT_FOLDER = 'frontend/build'
