@@ -22,7 +22,9 @@ const App = () => {
     for (let i = 0; i < files.length; i++) {
       formData.append('file', files[i]);
     }
-    
+
+    console.log(formData)
+
     try {
       const response = await axios.post(`/upload`, formData, {
         headers: {
