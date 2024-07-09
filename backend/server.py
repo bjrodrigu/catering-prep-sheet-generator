@@ -24,7 +24,33 @@ def serve_static(path):
 
 @app.route('/upload', methods=['POST'])
 def upload():
-    return jsonify({"message": "Upload endpoint hit"}), 200
+    
+    if request.method == 'POST':
+        # Get the list of files from the webpage
+        files = request.files.getlist("file")
+        # Iterate for each file in the files list, and save them
+        for file in files:
+            file_path = os.path.join(UPLOAD_FOLDER, file.filename)
+            file.save(file_path)
+
+        # Run the external script
+        result = subprocess.run(['python', 'backend/Spreadsheetmaker.py'], capture_output=True, text=True)
+
+        # Check if the Excel file exists
+        excel_file_path = os.path.join(OUTPUT_FOLDER, EXCEL_FILENAME)
+        if os.path.exists(excel_file_path):
+            return jsonify({
+                "message": "Process completed.",
+                "output_file": EXCEL_FILENAME,
+                "script_output": result.stdout,
+                "script_errors": result.stderr
+            })
+        else:
+            return jsonify({
+                "message": "Process completed but file not found.",
+                "script_output": result.stdout,
+                "script_errors": result.stderr
+            }), 500
 
 @app.route('/download/<filename>', methods=['GET'])
 def download_file(filename):
