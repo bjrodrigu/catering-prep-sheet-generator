@@ -4,7 +4,7 @@ import os
 import subprocess
 
 app = Flask(__name__, static_folder='../frontend/build', static_url_path='')
-CORS(app, resources={r"/*": {"origins": "https://www.doubledscateringexecution.com"}})
+CORS(app, resources={r"/*": {"origins": "https://www.doubledscateringexecution.com/"}})
 
 UPLOAD_FOLDER = 'user_receipts/'
 OUTPUT_FOLDER = 'frontend/build'
@@ -24,6 +24,7 @@ def serve_static(path):
 
 @app.route('/upload', methods=['POST'])
 def upload():
+    
     if request.method == 'POST':
         # Get the list of files from the webpage
         files = request.files.getlist("file")

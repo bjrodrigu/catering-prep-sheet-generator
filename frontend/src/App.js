@@ -11,6 +11,7 @@ const App = () => {
   const [downloadLink, setDownloadLink] = useState('');
 
   const handleFileChange = (event) => {
+    console.log("Running handleFileChange");
     setFiles(event.target.files);
   };
 
@@ -23,8 +24,12 @@ const App = () => {
       formData.append('file', files[i]);
     }
 
+    for (let pair of formData.entries()) {
+      console.log(pair[0], pair[1]);
+    }
+
     try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/upload`, formData, {
+      const response = await axios.post(`/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -33,7 +38,7 @@ const App = () => {
       console.log('Response Data:', response.data);
 
       if (response.data.output_file) {
-        setDownloadLink(`${process.env.REACT_APP_BACKEND_URL}/download/${response.data.output_file}`);
+        setDownloadLink(`/download/${response.data.output_file}`);
         setSuccessMessage('Files uploaded successfully!');
         setErrorMessage('');
         setVisible(true);
@@ -51,7 +56,7 @@ const App = () => {
   };
 
   const deleteFiles = () => {
-    axios.post(`${process.env.REACT_APP_BACKEND_URL}/delete-files`)
+    axios.post(`/delete-files`)
       .then(response => {
         console.log('Files deleted:', response.data.user_receipts, response.data.receipt_text_files);
       })
