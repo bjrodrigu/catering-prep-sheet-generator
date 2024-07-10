@@ -1,11 +1,9 @@
 # railway.toml
 
-[project]
-name = "catering-project"
-
-[services.backend]
-path = "backend"
-start = "python3 /backend/server.py"
-build = """
-docker build -t my-image:latest -f backend/Dockerfile ./backend
-"""
+[catering-project]
+  [catering-project.app]
+    name = "catering-project-app"
+    build = "Dockerfile"
+    start = "python app.py"
+    [catering-project.app.env]
+      PORT = "5000"
