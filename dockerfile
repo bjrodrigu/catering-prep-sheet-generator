@@ -6,6 +6,9 @@ RUN npm install
 COPY frontend/ .
 RUN npm run build
 
+# Ensure App.js and other necessary files are included in build
+RUN cp -r src/. build/
+
 # Stage 2: Set up Python backend
 FROM python:3.9-slim
 WORKDIR /app
