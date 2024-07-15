@@ -1,7 +1,7 @@
 import pandas as pd
 import openpyxl
 from openpyxl.styles import Alignment, PatternFill, Border, Side
-from Organizer import *
+from Organizer import process_receipt, read_ocr_output, calculate_total_sandwiches_and_bread, find_ready_time
 from ReceiptScanner import ReceiptScanner
 
 boxes = {
@@ -50,7 +50,7 @@ sandwiches = {
 }
 
 wraps={
-    "Chicken Caesar":{"count":0,"chicken":1,"garlic herb wrap":1},
+    "Chicken Ceaser":{"count":0,"chicken":1,"garlic herb wrap":1},
     "Jalapeno Ranch":{"count":0,"cheese":1,"chicken":1,"flour wrap":1},
     "Tuscan Italian":{"count":0,"vito":1,"ham":1,"garlic herb wrap":1}   
 }
@@ -89,9 +89,7 @@ total_grams = {
     "PastaSalad(LG)": 680
 }
 
-total_sandwiches = 0
-total_bread_usage = 0
-total_trays = 0
+
 
 def create_spreadsheet():
     # Create a new workbook and select the active sheet
@@ -134,8 +132,7 @@ def create_spreadsheet():
         ["", 16, sandwiches["#16 Club Lulu"]["count"]],
         ["", 17, sandwiches["#17 Ultimate Porker"]["count"]],
         ["", "BLT", sandwiches["J.J. BLT"]["count"]],
-        ["", "Caesar", wraps["Chicken Caesar"]["count"]],
-                              
+        ["", "Caesar", wraps["Chicken Ceaser"]["count"]],
         ["", "Jal Ranch", wraps["Jalapeno Ranch"]["count"]],
         ["", "Tuscan", wraps["Tuscan Italian"]["count"]],
         ["", "LTO Sandwich/Wrap", 0]
@@ -171,7 +168,7 @@ def create_spreadsheet():
     add_final_questions(sheet)
 
     # Save the workbook to a file
-    workbook.save("frontend/public/catering_execution_sheet.xlsx")
+    workbook.save("../frontend/public/catering_execution_sheet.xlsx")
     # Print a success message
     print("Excel file created successfully!")
 
@@ -260,12 +257,9 @@ def add_final_questions(sheet):
     final_questions = [
         [],
         ["What time is the opener starting?", ""],
-        ["Does the opener need support? (if yes, who is it and what time will they be in)", ""],
         ["How many trays are needed to complete the order? By what time does this bread need to be out?", ""],
         ["Do we need to bake bread at another location to complete the order on time?", ""],
         ["Do we need extra workers to execute this order? Who have we called? Who is making the food?", ""],
-        ["Please fill out the execution below. Enter a name and what time they will be in", ""],
-        [],
         ["How much extra meat and cheese do we need to slice?", ""],
         ["Do we need extra parm cheese prepped? What about avo, LTO skus, chicken?", ""],
         ["Do we need to order extra produce?", ""],
@@ -315,36 +309,16 @@ def main():
     scanner.main()
     print("FILENAMES: ", scanner.receipts_data)
     
-    orders_list = []         
-    processed_receipts = [] 
-
-
-
+    # Call the function to process the receipt for each receipt in receipts_data
     for receipt in scanner.receipts_data:
         output_file = receipt
         ocr_text = read_ocr_output(output_file)
+        process_receipt(ocr_text, boxes)
+        process_receipt(ocr_text, sandwiches)
+        process_receipt(ocr_text, wraps)
+        process_receipt(ocr_text, side_counts)
 
-        processed_receipts.append(process_receipt(ocr_text, boxes))
-        processed_receipts.append(process_receipt(ocr_text, sandwiches))
-        processed_receipts.append(process_receipt(ocr_text, wraps))
-        processed_receipts.append(process_receipt(ocr_text, side_counts))
-        
-
-
-
-    #print("PROCESSED RECEIPTS: ", processed_receipts)
-
-    for receipt_data in processed_receipts:
-        order = create_order_from_processed_data(receipt_data)
-        orders_list.append(order) 
-
-   #print("ORDERS LIST: ", orders_list[0])
-
-    total_sandwiches, total_bread_usage, total_trays = calculate_total_sandwiches_and_bread(sandwiches)
-    print("Total sandwiches: ", total_sandwiches)
-    print("Total bread usage: ", total_bread_usage)
-    print("Total trays: ", total_trays)
-    
+    #total_sandwiches, total_bread_usage, total_trays = calculate_total_sandwiches_and_bread(sandwiches)
     #ready_time = find_ready_time(ocr_text)
     #print("------------------------")
     #print(f"Ready at {ready_time}")

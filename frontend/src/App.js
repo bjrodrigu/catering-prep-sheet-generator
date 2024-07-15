@@ -8,15 +8,13 @@ const App = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [visible, setVisible] = useState(false);
-  const [downloadLink, setDownloadLink] = useState('');
 
   const handleFileChange = (event) => {
-    console.log("Running handleFileChange");
     setFiles(event.target.files);
   };
 
   const handleSubmit = async (event) => {
-    console.log("Running handleSubmit");
+    console.log("Running handleSubmit")
     event.preventDefault();
 
     const formData = new FormData();
@@ -24,46 +22,41 @@ const App = () => {
       formData.append('file', files[i]);
     }
 
-    for (let pair of formData.entries()) {
-      console.log(pair[0], pair[1]);
-    }
-
     try {
-      const response = await axios.post(`/upload`, formData, {
+      const response = await axios.post('/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-      console.log("Backend URL:", process.env.REACT_APP_BACKEND_URL);
-      console.log('Response Data:', response.data);
-
-      if (response.data.output_file) {
-        setDownloadLink(`/download/${response.data.output_file}`);
-        setSuccessMessage('Files uploaded successfully!');
-        setErrorMessage('');
-        setVisible(true);
-      } else {
-        setErrorMessage('File not generated.');
+      console.log('Files uploaded successfully:', response.data);
+      setSuccessMessage('Files uploaded successfully!');
+      setErrorMessage('');
+      setVisible(false);
+      console.log("Visible: ", visible)
+      setTimeout(() => {
         setSuccessMessage('');
-        setVisible(false);
-      }
+        setVisible(true);
+      }, 3000);
+
     } catch (error) {
       console.error('Error uploading files:', error);
       setErrorMessage('Error uploading files. Please try again.');
       setSuccessMessage('');
-      setVisible(false);
+      setTimeout(() => {
+        setErrorMessage('');
+      }, 3000); 
     }
   };
 
-  const deleteFiles = () => {
-    axios.post(`/delete-files`)
-      .then(response => {
+  function deleteFiles() {
+    axios.post('/delete-files')
+      .then(function (response) {
         console.log('Files deleted:', response.data.user_receipts, response.data.receipt_text_files);
       })
-      .catch(error => {
+      .catch(function (error) {
         console.error('Error deleting files:', error.response.data.error);
       });
-  };
+  }
 
   return (
     <div>
@@ -76,7 +69,7 @@ const App = () => {
           {successMessage && <div className="success-message">{successMessage}</div>}
           {errorMessage && <div className="error-message">{errorMessage}</div>}
           {visible && (
-            <a href={downloadLink} download onClick={deleteFiles}>
+            <a href="/catering_execution_sheet.xlsx" download onClick={deleteFiles}>
               Download Excel Sheet
             </a>
           )}

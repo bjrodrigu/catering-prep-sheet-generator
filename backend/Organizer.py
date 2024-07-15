@@ -1,25 +1,20 @@
 import re
 import math
 import os
-from datetime import datetime
 
 #Create dictonaries(hashmaps) of the items that need to be counted 
 boxes = {
-    "30Pc Party Box":{"count":0},   "18Pc Party Box":{"count":0},   "12 Half Sandwiches":{"count":0},
-    "12 Half Wraps":{"count":0}, "(Box)":{"count":0}, "Bottled Drink Bundle":{"count":0},"Chips Bundle":{"count":0},
-    "Desserts Bundle":{"count":0},"GIANT":{"count":0},"Lil John":{"count":0}
+    "30Pc Party Box":{"count":0},   "18Pc Party Box":{"count":0},   "12 pack":{"count":0},
+    "Wrapbox":{"count":0}, "(Box)":{"count":0}
 }
 
 side_counts ={
     "Regular Chips" :{"count":0},   "BBQ Chips":{"count":0},    "Jalapeno Chips":{"count":0},   "Salt Vin Chips":{"count":0},"Thinny Chips":{"count":0},
-    "PotSalad":{"count":0},   "PastaSalad":{"count":0},     "PotSalad (LG)":{"count":0},   "PastaSalad (LG)":{"count":0}, "Pickles":{"count":0},
-    "Pickle Bucket":{"count":0},"Choc Chip Cookie":{"count":0},  "Oatmeal Rasin Cookie":{"count":0},   "Fudge Choc Brownie":{"count":0},
-    "Coke(Bottle)":{"count":0},"Sprite(Bottle)":{"count":0},"Diet Coke(Bottle)":{"count":0}
+    "PotSalad":{"count":0},   "PastaSalad":{"count":0},     "PotSalad(LG)":{"count":0},   "PastaSalad(LG)":{"count":0}, "Pickles":{"count":0},
+    "Pickle Bucket":{"count":0},"Choc Chip Cookie":{"count":0},  "Oatmeal Rasin Cookie":{"count":0},   "Fudge Choc Brownie":{"count":0}
 }
     #the layout for the dic is sandwich name{Num of sandwiches, portion need to make the sandwiches after that}
 sandwiches={
-    "Slim 1":{"count":0,"cheese":1,"ham":1}, "Slim 2":{"count":0,"roast beef":1},"Slim 3":{"count":0,"tuna":1},
-    "Slim 4":{"count":0,"turkey":1}, "Slim 5":{"count":0,"cheese":1,"vito":1},"Slim 6":{"count":0,"cheese":2},"Slim Bacon":{"count":0,"bacon":6},
     "#1 Pepe": {"count":0,"cheese":1, "ham":1}, "#2 Big John":{"count":0,"roast beef":1},
     "#3 Totally Tuna":{"count":0,"tuna":1}, "#4 Turkey Tom":{"count":0,"turkey":1},
     "#5 Vito":{"count":0,"cheese":1,"vito":1},"#6 The Veggie":{"count":0,"cheese":2},"J.J. BLT":{"count":0,"bacon":6},
@@ -32,22 +27,9 @@ sandwiches={
     "J.J. Garganutan":{"count":0,"cheese":1,"ham":1,"roast beef":1,"turkey":1,"vito":1}    
 }
 wraps={
-    "Chicken Caesar":{"count":0,"chicken":1,"garlic herb wrap":1},"Jalapeno Ranch":{"count":0,"cheese":1,"chicken":1,"flour wrap":1},
+    "Chicken Ceaser":{"count":0,"chicken":1,"garlic herb wrap":1},"Jalapeno Ranch":{"count":0,"cheese":1,"chicken":1,"flour wrap":1},
     "Tuscan Italian":{"count":0,"vito":1,"ham":1,"galric herb wrap":1}   
 }
-alternate_names ={
-    "#9 Italian": "#9 Italian Club",
-    "#10 Hunter's": "#10 Hunters Club",
-    "#11 Country":"#11 Country Club",
-    "#17 Ultimate P":"#17 Ultimate Porker",
-    "JJ Garganutan":"J.J. Garganutan",
-    "CCW":"Chicken Caesar",
-    "JRW":"Jalapeno Ranch",
-    "TIW":"Tuscan Italian",
-    "Chocolate Chip Cookie":"Choc Chip Cookie",
-    "Wrap Box":"12 Half Wraps"
-}
-
 portions_per_pack={
     "cheese":60, "vito":25,"roast beef":30, "turkey":25,"ham":25,"chicken":7,"bacon":150,"garlic herb wrap":12,"flour wrap":12
 }
@@ -58,7 +40,6 @@ items_per_box={
 total_grams={
     "PotSalad":142.0,   "PastaSalad":113.0,     "PotSalad(LG)":851,   "PastaSalad(LG)":680
 }
-
 
 def process_receipt(receipt, dictionary):
     total_portions={}
@@ -71,12 +52,6 @@ def process_receipt(receipt, dictionary):
         count = 0
         occurrences = re.findall(re.escape(item), receipt, re.IGNORECASE)
         count = len(occurrences)
-        
-        for alt_name, primary_name in alternate_names.items():
-            if primary_name == item:
-                occurrences = re.findall(re.escape(alt_name), receipt, re.IGNORECASE)
-                count += len(occurrences)
-                
         info["count"] += count
     
     if dictionary is boxes:
@@ -135,7 +110,6 @@ def process_receipt(receipt, dictionary):
         "total_containers": total_containers,
         "ready_time":ready_time
     }
-    
     return processed_data
 
 def extract_box_quantities(text,boxes):
@@ -157,7 +131,7 @@ def extract_box_quantities(text,boxes):
     for match in matches:
         quantity, party_box_name = match
         if party_box_name in boxes:
-            boxes[party_box_name]["count"] += int(quantity)-1
+            party_boxes[party_box_name]["count"] += int(quantity)-1
 
 def extract_sandwich_quantities(text,sandwiches):
     # Define a list of possible sandwich names
@@ -186,10 +160,10 @@ def extract_dessert_quantities(text,side_counts):
     # Define regular expression pattern for cookies
     dessert_pattern = r'(\d+)\s+(Oatmeal Raisin Cookie|Choc Chip Cookie|Fudge Choc Brownie)\b'
 
-    # Find all matches of the cookie pattern in the text
+        # Find all matches of the cookie pattern in the text
     matches = re.findall(dessert_pattern, text)
 
-    # Extract quantities from the matches
+        # Extract quantities from the matches
     for match in matches:
         quantity, dessert = match
         if dessert in side_counts:
@@ -237,6 +211,7 @@ def extract_chip_quantities(text, chips):
             chips[chip_name]["count"] += int(quantity) -1
 
 def extract_wrap_quantities(text,wraps):
+    # Define a list of possible wrap names
     wrap_names = [
         "Chicken Caesar Wrap", "Jalpeno Ranch Wrap", "Tuscan Italian Wrap"
     ]
@@ -316,39 +291,16 @@ def calculate_total_sandwiches_and_bread(sandwiches):
     return total_sandwiches, total_bread_usage, total_trays       
 
 def find_ready_time(receipt):
-    # Regular expression pattern to find the date at the top of the receipt (e.g., "2024-06-22")
-    date_pattern = r'^(\d{2}-\d{2}-\d{4})'  # Assuming the date format is DD-MM-YYYY
-    
-    # Regular expression pattern to find "ready at" time in the receipt (e.g., "@ 2:30 PM")
-    ready_pattern = r'@ (\d{1,2}:\d{2}(?:\s*[APM]{2})?)'  # Adjusted for optional AM/PM
+    # Regular expression pattern to find "@ ready at" time in the receipt
+    ready_pattern = r'@ (\d{1,2}:\d{2})'
 
-    # Search for the date pattern in the receipt
-    date_match = re.search(date_pattern, receipt, re.IGNORECASE | re.MULTILINE)
+    # Search for the "@ ready at" time pattern in the receipt
+    match = re.search(ready_pattern, receipt, re.IGNORECASE)
 
-    # Search for the "ready at" time pattern in the receipt
-    time_match = re.search(ready_pattern, receipt, re.IGNORECASE)
-
-    if date_match and time_match:
-        date_str = date_match.group(1)  # Get the matched date string
-        time_str = time_match.group(1)  # Get the matched time string
-
-        # Combine the date and time strings
-        combined_str = f"{date_str} {time_str}"
-
-        # Parse the combined date and time string into a datetime object
-        try:
-            # If AM/PM is present, use 12-hour format, otherwise assume 24-hour format
-            if 'AM' in time_str.upper() or 'PM' in time_str.upper():
-                ready_time = datetime.strptime(combined_str, "%d-%m-%Y %I:%M %p")
-            else:
-                ready_time = datetime.strptime(combined_str, "%d-%m-%Y %H:%M")
-            
-            return ready_time
-        except ValueError as e:
-            print(f"Error parsing date and time: {e}")
-            return None
+    if match:
+        return match.group(1)  # Return the matched time
     else:
-        return None  # Return None if no date or time is found
+        return None  # Return None if no time is found
     
 #get the string from other file 
 def read_ocr_output(file_path):
@@ -370,55 +322,22 @@ def process_multiple_receipts(folder_path, boxes, sandwiches, wraps, side_counts
             processed_receipts.append(process_receipt(ocr_text, wraps))
             processed_receipts.append(process_receipt(ocr_text, side_counts))
             
-        
-    orders_list =[]            
+            find_ready_time(ocr_text)
     
     for receipt_data in processed_receipts:
-        order = create_order_from_processed_data(receipt_data)
-        orders_list.append(order) 
-    
-    grand_total =0.0
-    
-    total_pattern = re.compile(r'Total\s*\s*\$([0-9]+(?:\.[0-9]{2})?)')
-
-    # Process each receipt
-    for receipt in processed_receipts:
-        match = total_pattern.search(receipt)
-        if match:
-            total_amount = float(match.group(1))
-            grand_total += total_amount    
+        print_processed_data(receipt_data)
     
     calculate_total_sandwiches_and_bread(sandwiches)
     
-def create_order_from_processed_data(processed_data):
-    counts = processed_data["counts"]
-    total_portions = processed_data["total_portions"]
-    total_containers = processed_data["total_containers"]
-    ready_time = processed_data["ready_time"]
-    order = Order(ready_time, counts, total_portions, total_containers)
-    return order    
-    
+    calculate_total_sandwiches_and_bread(sandwiches)
 def main():
-    folder_path = "receipt_text_files"
     process_multiple_receipts(folder_path, boxes, sandwiches, wraps, side_counts)
+    folder_path = "/catering/Catering-Project/files"
+
+    
+
+
     
     
 if __name__ == "__main__":
     main()
-    
-class Order:
-    def __init__(self, ready_time, counts=None, total_portions=0, total_containers=0):
-        if isinstance(ready_time, str):
-            self.ready_time = datetime.strptime(ready_time, "%Y-%m-%d %H:%M:%S")
-        else:
-            self.ready_time = ready_time
-        self.counts = counts if counts is not None else {}
-        self.total_portions = total_portions
-        self.total_containers = total_containers
-
-    def __str__(self):
-        items_str = ', '.join(f"{key}: {value}" for key, value in self.counts.items())
-        return (f"Order Ready Time: {self.ready_time.strftime('%Y-%m-%d %H:%M:%S')}\n"
-                f"Items: {items_str}\n"
-                f"Total Portions: {self.total_portions}\n"
-                f"Total Containers: {self.total_containers}")

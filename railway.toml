@@ -1,9 +1,0 @@
-# railway.toml
-
-[catering-project]
-  [catering-project.app]
-    name = "catering-project-app"
-    build = "Dockerfile"
-    start = "python app.py"
-    [catering-project.app.env]
-      PORT = "5000"
