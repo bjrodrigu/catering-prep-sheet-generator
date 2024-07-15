@@ -1,4 +1,4 @@
-# Project Name
+# Catering Execution Generator
 
 A web application that automates the creation and management of catering execution sheets.
 
