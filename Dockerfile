@@ -5,7 +5,6 @@ COPY frontend/package.json frontend/package-lock.json ./
 RUN npm install
 COPY frontend/ ./
 RUN npm run build
-RUN  serve -s build
 
 # Backend build stage
 FROM python:3.9-slim
@@ -19,10 +18,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY backend/ ./
 
 # Copy built frontend files to backend's static folder
-COPY --from=frontend-builder /app/build/ ./static/
+COPY --from=frontend-builder /app/build ./static
 
 # Expose the backend port
 EXPOSE 2003
 
 # Start the backend server
-CMD ["python", "app.py"]
+CMD ["python", "server.py"]
