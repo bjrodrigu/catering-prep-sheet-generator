@@ -5,6 +5,7 @@ COPY frontend/package.json frontend/package-lock.json ./
 RUN npm install
 COPY frontend/ ./
 RUN npm run build
+RUN  serve -s build
 
 # Backend build stage
 FROM python:3.9-slim
