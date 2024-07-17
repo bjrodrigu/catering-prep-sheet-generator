@@ -34,7 +34,7 @@ WORKDIR /app
 COPY --from=backend-builder /app/backend /app
 
 # Expose the necessary ports
-EXPOSE 2003
+EXPOSE 8080
 
 # Command to run Gunicorn with the Flask application
-CMD ["gunicorn", "-b", "0.0.0.0:2003", "app:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app"]
