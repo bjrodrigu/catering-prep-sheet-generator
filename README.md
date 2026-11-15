@@ -1,4 +1,4 @@
-# Catering Prep Sheet Generator
+# Catering Execution Generator
 
 A web app that turns a stack of catering order receipts into a single **catering execution sheet**: an Excel prep sheet listing how many of each sandwich, wrap, box and side to make, the meat and cheese portions to slice, bread totals, and each order's ready time.
 
