@@ -17,3 +17,13 @@ env/
 
 # Other
 *.DS_Store
+# Secrets: never commit these
+.env
+googlevisionapi.json
+**/googlevisionapi.json
+*service-account*.json
+
+# Real customer receipts and generated output
+backend/user_receipts/
+backend/receipt_text_files/
+frontend/public/catering_execution_sheet.xlsx
